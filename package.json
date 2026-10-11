@@ -1,0 +1,11 @@
+{
+  "name": "anneal",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck",
+    "anneal": "pnpm --filter @anneal/cli start"
+  },
+  "engines": { "node": ">=20" }
+}
