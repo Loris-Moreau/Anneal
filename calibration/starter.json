@@ -1,0 +1,645 @@
+{
+ "description": "Authored smoke-test set, NOT real learner answers. Use it to check the pipeline runs and to compare scorers. Thresholds must be calibrated on real answers (about 200) collected from the app.",
+ "source": "authored",
+ "cards": [
+  {
+   "id": "mito-cristae",
+   "prompt": "Why do mitochondria have a highly folded inner membrane?",
+   "reference": "The inner membrane folds into cristae, which increases its surface area. This lets more of the electron transport chain and ATP synthase fit, so the mitochondrion can make more ATP.",
+   "rubric": [
+    "The inner membrane is folded into cristae.",
+    "Folding increases the inner membrane's surface area.",
+    "More surface area hosts more electron transport chain and ATP synthase, increasing ATP production."
+   ],
+   "variants": [
+    {
+     "kind": "full",
+     "answer": "The folds, called cristae, give the inner membrane much more surface area, so more electron transport chain proteins and ATP synthase can sit in it and the cell makes more ATP.",
+     "covered": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "terse",
+     "answer": "Cristae increase surface area for ATP production.",
+     "covered": [
+      true,
+      true,
+      false
+     ]
+    },
+    {
+     "kind": "partial",
+     "answer": "The inner membrane is folded into cristae.",
+     "covered": [
+      true,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "negated",
+     "answer": "The inner membrane is smooth, and folding would reduce its surface area.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "related-wrong",
+     "answer": "The folds let the mitochondrion divide more easily and store its DNA.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "vague",
+     "answer": "Because mitochondria are the powerhouse of the cell.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "id": "light-reactions",
+   "prompt": "What do the light-dependent reactions of photosynthesis produce, and where do they occur?",
+   "reference": "They occur in the thylakoid membranes of the chloroplast. They use light energy to split water, releasing oxygen, and to make ATP and NADPH.",
+   "rubric": [
+    "They occur in the thylakoid membranes of the chloroplast.",
+    "Water is split, releasing oxygen.",
+    "ATP and NADPH are produced."
+   ],
+   "variants": [
+    {
+     "kind": "full",
+     "answer": "In the thylakoid membranes, light drives the splitting of water which gives off oxygen, and the energy is stored as ATP and NADPH.",
+     "covered": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "partial",
+     "answer": "They make ATP and NADPH from light.",
+     "covered": [
+      false,
+      false,
+      true
+     ]
+    },
+    {
+     "kind": "partial-2",
+     "answer": "It happens in the thylakoids and releases oxygen from water.",
+     "covered": [
+      true,
+      true,
+      false
+     ]
+    },
+    {
+     "kind": "wrong-place",
+     "answer": "They happen in the stroma, where glucose is made from carbon dioxide.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "negated",
+     "answer": "They consume oxygen and produce carbon dioxide and glucose.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "vague",
+     "answer": "Plants use sunlight to grow.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "id": "dna-lagging",
+   "prompt": "Why is one DNA strand synthesized discontinuously during replication?",
+   "reference": "DNA polymerase can only add nucleotides to a 3' end, so it synthesizes only in the 5' to 3' direction. On the strand running the opposite way from the fork, synthesis happens in short Okazaki fragments that ligase later joins.",
+   "rubric": [
+    "DNA polymerase adds nucleotides only in the 5' to 3' direction.",
+    "The lagging strand is made in short Okazaki fragments.",
+    "Ligase joins the fragments."
+   ],
+   "variants": [
+    {
+     "kind": "full",
+     "answer": "Polymerase only extends 3' ends, going 5' to 3', so the lagging strand is built backwards in small Okazaki fragments which DNA ligase then seals together.",
+     "covered": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "partial",
+     "answer": "Because polymerase only works 5' to 3', one strand has to be made in pieces.",
+     "covered": [
+      true,
+      true,
+      false
+     ]
+    },
+    {
+     "kind": "partial-2",
+     "answer": "Okazaki fragments are joined by ligase.",
+     "covered": [
+      false,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "negated",
+     "answer": "DNA polymerase can add nucleotides in both directions, so both strands are continuous.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "related-wrong",
+     "answer": "Helicase can only unwind one strand at a time, so the other strand is copied later.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "vague",
+     "answer": "I don't remember.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "id": "osmosis",
+   "prompt": "Which way does water move in osmosis?",
+   "reference": "Water moves across a semipermeable membrane from the region of lower solute concentration to the region of higher solute concentration.",
+   "rubric": [
+    "Water moves across a semipermeable membrane.",
+    "It moves from lower solute concentration to higher solute concentration."
+   ],
+   "variants": [
+    {
+     "kind": "full",
+     "answer": "Water diffuses through a selectively permeable membrane toward the side with more dissolved solute.",
+     "covered": [
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "terse",
+     "answer": "Toward higher solute concentration across a semipermeable membrane.",
+     "covered": [
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "partial",
+     "answer": "Water moves through a membrane.",
+     "covered": [
+      true,
+      false
+     ]
+    },
+    {
+     "kind": "reversed",
+     "answer": "Water moves from the high solute side to the low solute side.",
+     "covered": [
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "related-wrong",
+     "answer": "Solute moves across the membrane to even out the concentration while the water stays put.",
+     "covered": [
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "vague",
+     "answer": "It depends on temperature.",
+     "covered": [
+      false,
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "id": "newton-2",
+   "prompt": "How does the acceleration of an object depend on net force and mass?",
+   "reference": "Acceleration is directly proportional to the net force and inversely proportional to the mass (a = F/m), and it points in the direction of the net force.",
+   "rubric": [
+    "Acceleration is proportional to the net force.",
+    "Acceleration is inversely proportional to mass.",
+    "Acceleration points in the direction of the net force."
+   ],
+   "variants": [
+    {
+     "kind": "full",
+     "answer": "a = F/m: a bigger net force gives a bigger acceleration, a bigger mass gives a smaller acceleration, and the acceleration is in the same direction as the net force.",
+     "covered": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "terse",
+     "answer": "a = F/m",
+     "covered": [
+      true,
+      true,
+      false
+     ]
+    },
+    {
+     "kind": "partial",
+     "answer": "More force means more acceleration.",
+     "covered": [
+      true,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "reversed",
+     "answer": "Heavier objects accelerate faster for the same force.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "related-wrong",
+     "answer": "Acceleration is proportional to mass times force.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "vague",
+     "answer": "Objects at rest stay at rest.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "id": "tcp-udp",
+   "prompt": "How does TCP differ from UDP?",
+   "reference": "TCP is connection-oriented and gives reliable, ordered delivery using acknowledgements and retransmission. UDP is connectionless and does not guarantee delivery or order, which makes it faster with less overhead.",
+   "rubric": [
+    "TCP is connection-oriented with reliable, ordered delivery.",
+    "UDP is connectionless and gives no delivery or ordering guarantees.",
+    "UDP has lower overhead and is faster."
+   ],
+   "variants": [
+    {
+     "kind": "full",
+     "answer": "TCP sets up a connection and guarantees reliable, in-order delivery with acknowledgements and retransmits. UDP is connectionless with no guarantees, so it has less overhead and is faster.",
+     "covered": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "terse",
+     "answer": "TCP is reliable and connection-based; UDP is not, but is faster.",
+     "covered": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "partial",
+     "answer": "TCP guarantees that data arrives in order.",
+     "covered": [
+      true,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "partial-2",
+     "answer": "UDP just sends packets without checking if they arrive, so it is quicker.",
+     "covered": [
+      false,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "swapped",
+     "answer": "UDP is reliable and ordered, while TCP is connectionless.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "vague",
+     "answer": "They are both used for web browsing.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "id": "hash-collision",
+   "prompt": "What is a hash collision and how can a hash table handle it?",
+   "reference": "A collision happens when two different keys hash to the same index. It can be handled by chaining, storing colliding entries in a list at that index, or by open addressing, probing for another free slot.",
+   "rubric": [
+    "A collision occurs when two different keys map to the same index.",
+    "Chaining stores colliding entries in a list at the same index.",
+    "Open addressing probes for another free slot."
+   ],
+   "variants": [
+    {
+     "kind": "full",
+     "answer": "A collision is when two different keys hash to the same bucket. You can chain them in a linked list in that bucket, or use open addressing and probe for the next free slot.",
+     "covered": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "partial",
+     "answer": "Two keys can land on the same bucket; you can keep a linked list in the bucket.",
+     "covered": [
+      true,
+      true,
+      false
+     ]
+    },
+    {
+     "kind": "partial-2",
+     "answer": "When two keys hash to the same spot, you probe the next free slot.",
+     "covered": [
+      true,
+      false,
+      true
+     ]
+    },
+    {
+     "kind": "wrong",
+     "answer": "A collision is when the hash table runs out of memory, and you fix it by deleting old keys.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "related-wrong",
+     "answer": "A collision happens when the same key is inserted twice, and the second value is dropped.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "vague",
+     "answer": "Hash tables are fast.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "id": "recursion-base",
+   "prompt": "Why does a recursive function need a base case?",
+   "reference": "The base case stops the recursion by returning a result without another recursive call. Without it the function calls itself forever, eventually overflowing the call stack.",
+   "rubric": [
+    "The base case returns without making another recursive call, ending the recursion.",
+    "Without a base case the recursion never terminates and overflows the stack."
+   ],
+   "variants": [
+    {
+     "kind": "full",
+     "answer": "It is the case where the function returns directly instead of calling itself, which ends the recursion. Without one it recurses forever and blows the stack.",
+     "covered": [
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "partial",
+     "answer": "It's the condition where the function stops calling itself.",
+     "covered": [
+      true,
+      false
+     ]
+    },
+    {
+     "kind": "partial-2",
+     "answer": "Otherwise you get a stack overflow.",
+     "covered": [
+      false,
+      true
+     ]
+    },
+    {
+     "kind": "negated",
+     "answer": "Recursive functions work fine without one because the compiler stops them automatically.",
+     "covered": [
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "related-wrong",
+     "answer": "The base case makes the function run faster by caching results.",
+     "covered": [
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "vague",
+     "answer": "Recursion is when a function is called.",
+     "covered": [
+      false,
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "id": "demand-shift",
+   "prompt": "What happens to the equilibrium price and quantity when demand increases and supply stays the same?",
+   "reference": "Both the equilibrium price and the equilibrium quantity rise.",
+   "rubric": [
+    "The equilibrium price rises.",
+    "The equilibrium quantity rises."
+   ],
+   "variants": [
+    {
+     "kind": "full",
+     "answer": "The demand curve shifts right, so the price goes up and more units are traded.",
+     "covered": [
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "terse",
+     "answer": "Price and quantity both increase.",
+     "covered": [
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "partial",
+     "answer": "The price goes up.",
+     "covered": [
+      true,
+      false
+     ]
+    },
+    {
+     "kind": "half-wrong",
+     "answer": "Price rises but quantity falls.",
+     "covered": [
+      true,
+      false
+     ]
+    },
+    {
+     "kind": "reversed",
+     "answer": "Price falls because more people want it.",
+     "covered": [
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "vague",
+     "answer": "Supply and demand always balance.",
+     "covered": [
+      false,
+      false
+     ]
+    }
+   ]
+  },
+  {
+   "id": "herd-immunity",
+   "prompt": "How does herd immunity protect people who cannot be vaccinated?",
+   "reference": "When enough of a population is immune, an infection finds fewer susceptible hosts and spreads less, so unvaccinated individuals are less likely to be exposed.",
+   "rubric": [
+    "A large share of the population is immune.",
+    "The pathogen spreads less because there are fewer susceptible hosts.",
+    "Unvaccinated people are therefore less likely to be exposed."
+   ],
+   "variants": [
+    {
+     "kind": "full",
+     "answer": "If most people are immune, the disease has few susceptible people to jump to, so it spreads less and those who cannot be vaccinated are exposed much less often.",
+     "covered": [
+      true,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "partial",
+     "answer": "It works when a lot of people are vaccinated.",
+     "covered": [
+      true,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "partial-2",
+     "answer": "The disease has fewer people to jump to, so those who cannot be vaccinated are exposed less.",
+     "covered": [
+      false,
+      true,
+      true
+     ]
+    },
+    {
+     "kind": "wrong",
+     "answer": "Vaccinated people pass their antibodies to the unvaccinated through contact.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "negated",
+     "answer": "Herd immunity means the disease spreads faster, so everyone is exposed early.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    },
+    {
+     "kind": "vague",
+     "answer": "Vaccines are tested in clinical trials.",
+     "covered": [
+      false,
+      false,
+      false
+     ]
+    }
+   ]
+  }
+ ]
+}
