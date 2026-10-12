@@ -27,7 +27,7 @@ If install ends with `ERR_PNPM_IGNORED_BUILDS` (esbuild), run `pnpm approve-buil
 ## Generate a deck
 
 ```
-$env:ANNEAL_USER_AGENT = "Anneal/0.1 (https://github.com/<you>/Anneal; you@example.com)"
+$env:ANNEAL_USER_AGENT = "Anneal/0.1 (https://github.com/Loris-Moreau/Anneal)"
 pnpm anneal wiki "Kinetic energy" --show --save-html packages/wiki/test/fixtures/kinetic-energy-live.html
 ```
 
