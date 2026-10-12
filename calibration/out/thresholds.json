@@ -1,0 +1,13 @@
+{
+  "tier2": {
+    "covered": 0.75,
+    "missed": 0.3,
+    "contradiction": 0.3
+  },
+  "measured": {
+    "settled": 0.4,
+    "falseAccept": 0,
+    "falseReject": 0,
+    "n": 60
+  }
+}

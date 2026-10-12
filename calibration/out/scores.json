@@ -1,0 +1,773 @@
+{
+ "scorer": "local (default embedder + default NLI)",
+ "scores": {
+  "mito-cristae/full": [
+   {
+    "support": 0.9939648959982446,
+    "contradiction": 0.0004857710764843454
+   },
+   {
+    "support": 0.9912001371408296,
+    "contradiction": 0.0006771450979171097
+   },
+   {
+    "support": 0.9806905017164498,
+    "contradiction": 0.00048697064526796366
+   }
+  ],
+  "mito-cristae/terse": [
+   {
+    "support": 0.03543290218287818,
+    "contradiction": 0.7577141259473363
+   },
+   {
+    "support": 0.2693402585338129,
+    "contradiction": 0.052097592318171744
+   },
+   {
+    "support": 0.0009447187147237062,
+    "contradiction": 0.0009245210084642949
+   }
+  ],
+  "mito-cristae/partial": [
+   {
+    "support": 0.9935534980697791,
+    "contradiction": 0.0007338353905879001
+   },
+   {
+    "support": 0.040313125446553105,
+    "contradiction": 0.007250937923394556
+   },
+   {
+    "support": 0.016463273834946873,
+    "contradiction": 0.03789255920995007
+   }
+  ],
+  "mito-cristae/negated": [
+   {
+    "support": 0.0011634211469522394,
+    "contradiction": 0.9820182960138382
+   },
+   {
+    "support": 0.00044042892633233314,
+    "contradiction": 0.9985912578669794
+   },
+   {
+    "support": 0.0009345729990540196,
+    "contradiction": 0.028129334543276343
+   }
+  ],
+  "mito-cristae/related-wrong": [
+   {
+    "support": 0.22300336495186537,
+    "contradiction": 0.18295977680129086
+   },
+   {
+    "support": 0.004361932963288147,
+    "contradiction": 0.005131266448997804
+   },
+   {
+    "support": 0.00460661708683122,
+    "contradiction": 0.10612114519553428
+   }
+  ],
+  "mito-cristae/vague": [
+   {
+    "support": 0.010490245940210183,
+    "contradiction": 0.9597539287316789
+   },
+   {
+    "support": 0.018098937008925467,
+    "contradiction": 0.3509343212221867
+   },
+   {
+    "support": 0.0020332544265962596,
+    "contradiction": 0.045946685398961004
+   }
+  ],
+  "light-reactions/full": [
+   {
+    "support": 0.0017511854613184313,
+    "contradiction": 0.0011344129902827072
+   },
+   {
+    "support": 0.9900157154566306,
+    "contradiction": 0.0009178550786011658
+   },
+   {
+    "support": 0.8456413923011309,
+    "contradiction": 0.034013925091832466
+   }
+  ],
+  "light-reactions/partial": [
+   {
+    "support": 0.004264721758739034,
+    "contradiction": 0.629178678523532
+   },
+   {
+    "support": 0.0003448325246194283,
+    "contradiction": 0.994993616591245
+   },
+   {
+    "support": 0.9903483962395222,
+    "contradiction": 0.000748927398000151
+   }
+  ],
+  "light-reactions/partial-2": [
+   {
+    "support": 0.002612474913825794,
+    "contradiction": 0.0017520696811429172
+   },
+   {
+    "support": 0.8876845799372078,
+    "contradiction": 0.0036080274909378444
+   },
+   {
+    "support": 0.0041689205768293425,
+    "contradiction": 0.022261257484149324
+   }
+  ],
+  "light-reactions/wrong-place": [
+   {
+    "support": 0.005447189171167199,
+    "contradiction": 0.539769652705214
+   },
+   {
+    "support": 0.0013915702596751368,
+    "contradiction": 0.9841713972497796
+   },
+   {
+    "support": 0.006005235980813413,
+    "contradiction": 0.40573785379626387
+   }
+  ],
+  "light-reactions/negated": [
+   {
+    "support": 0.00238258072241032,
+    "contradiction": 0.031728870893764485
+   },
+   {
+    "support": 0.001652249173409257,
+    "contradiction": 0.9831961621638191
+   },
+   {
+    "support": 0.010384101624593576,
+    "contradiction": 0.9056956896456944
+   }
+  ],
+  "light-reactions/vague": [
+   {
+    "support": 0.02254374248142815,
+    "contradiction": 0.03416294905109954
+   },
+   {
+    "support": 0.001550045023968771,
+    "contradiction": 0.9867287420731582
+   },
+   {
+    "support": 0.013275913409723138,
+    "contradiction": 0.016520144141053336
+   }
+  ],
+  "dna-lagging/full": [
+   {
+    "support": 0.9432287595379835,
+    "contradiction": 0.010788893894469324
+   },
+   {
+    "support": 0.9812560416560651,
+    "contradiction": 0.0024894156514626005
+   },
+   {
+    "support": 0.850782699417162,
+    "contradiction": 0.013383874446092757
+   }
+  ],
+  "dna-lagging/partial": [
+   {
+    "support": 0.8724773884555235,
+    "contradiction": 0.0016113178655708447
+   },
+   {
+    "support": 0.0013334785544894911,
+    "contradiction": 0.015412091018664328
+   },
+   {
+    "support": 0.08475893134530858,
+    "contradiction": 0.1204672051213368
+   }
+  ],
+  "dna-lagging/partial-2": [
+   {
+    "support": 0.007349298062829893,
+    "contradiction": 0.9025459755104971
+   },
+   {
+    "support": 0.09260666408697152,
+    "contradiction": 0.09770848062787367
+   },
+   {
+    "support": 0.9938869378956681,
+    "contradiction": 0.0013484167008347013
+   }
+  ],
+  "dna-lagging/negated": [
+   {
+    "support": 0.00021253554167873948,
+    "contradiction": 0.9931869201371399
+   },
+   {
+    "support": 0.0009889250436686719,
+    "contradiction": 0.10393719453113216
+   },
+   {
+    "support": 0.5402801807817607,
+    "contradiction": 0.1512781810472253
+   }
+  ],
+  "dna-lagging/related-wrong": [
+   {
+    "support": 0.028400968510562685,
+    "contradiction": 0.05423022597665412
+   },
+   {
+    "support": 0.0007598567565330326,
+    "contradiction": 0.011594050094974767
+   },
+   {
+    "support": 0.1255317574528757,
+    "contradiction": 0.6885561188396733
+   }
+  ],
+  "dna-lagging/vague": [
+   {
+    "support": 0.03014300407330996,
+    "contradiction": 0.8361190597688375
+   },
+   {
+    "support": 0.005876890878538439,
+    "contradiction": 0.06721503112986524
+   },
+   {
+    "support": 0.02444623641953255,
+    "contradiction": 0.0307964141074834
+   }
+  ],
+  "osmosis/full": [
+   {
+    "support": 0.9874737575624669,
+    "contradiction": 0.0015638159978105751
+   },
+   {
+    "support": 0.2993129109420068,
+    "contradiction": 0.016225189296276712
+   }
+  ],
+  "osmosis/terse": [
+   {
+    "support": 0.02844680106179723,
+    "contradiction": 0.018493586270970024
+   },
+   {
+    "support": 0.981118009602945,
+    "contradiction": 0.00039153127194721906
+   }
+  ],
+  "osmosis/partial": [
+   {
+    "support": 0.052184092924981065,
+    "contradiction": 0.002180736148096121
+   },
+   {
+    "support": 0.008913346926142885,
+    "contradiction": 0.005624844002797028
+   }
+  ],
+  "osmosis/reversed": [
+   {
+    "support": 0.012528784407367365,
+    "contradiction": 0.01506939968822537
+   },
+   {
+    "support": 0.0008761267965578931,
+    "contradiction": 0.9949029994708968
+   }
+  ],
+  "osmosis/related-wrong": [
+   {
+    "support": 0.04419298464188686,
+    "contradiction": 0.8051176106223827
+   },
+   {
+    "support": 0.022673038178790367,
+    "contradiction": 0.0226282289397215
+   }
+  ],
+  "osmosis/vague": [
+   {
+    "support": 0.07264840589979349,
+    "contradiction": 0.159347790948504
+   },
+   {
+    "support": 0.01633944694103604,
+    "contradiction": 0.018730081734321495
+   }
+  ],
+  "newton-2/full": [
+   {
+    "support": 0.8829069802773235,
+    "contradiction": 0.02051846121226116
+   },
+   {
+    "support": 0.015884911015847304,
+    "contradiction": 0.9560947283457071
+   },
+   {
+    "support": 0.8351536280689629,
+    "contradiction": 0.08908983318128712
+   }
+  ],
+  "newton-2/terse": [
+   {
+    "support": 0.19352783349699806,
+    "contradiction": 0.09004324587648029
+   },
+   {
+    "support": 0.07424374854151344,
+    "contradiction": 0.6078511747480063
+   },
+   {
+    "support": 0.45179815344523744,
+    "contradiction": 0.09387755873265842
+   }
+  ],
+  "newton-2/partial": [
+   {
+    "support": 0.7566187068556962,
+    "contradiction": 0.03450871837862351
+   },
+   {
+    "support": 0.0019983155507704215,
+    "contradiction": 0.9626759672554471
+   },
+   {
+    "support": 0.44336807772719766,
+    "contradiction": 0.052096338858039964
+   }
+  ],
+  "newton-2/reversed": [
+   {
+    "support": 0.130717483714583,
+    "contradiction": 0.059863867707112224
+   },
+   {
+    "support": 0.0017343338244603988,
+    "contradiction": 0.969421408600845
+   },
+   {
+    "support": 0.1885110518410302,
+    "contradiction": 0.036958812409308095
+   }
+  ],
+  "newton-2/related-wrong": [
+   {
+    "support": 0.27401005472298046,
+    "contradiction": 0.661355013341343
+   },
+   {
+    "support": 0.0007685824411842163,
+    "contradiction": 0.9946898703685242
+   },
+   {
+    "support": 0.18394709419081925,
+    "contradiction": 0.49095506121381105
+   }
+  ],
+  "newton-2/vague": [
+   {
+    "support": 0.0427961676634622,
+    "contradiction": 0.8136410527141057
+   },
+   {
+    "support": 0.19677941284756517,
+    "contradiction": 0.15996387209281107
+   },
+   {
+    "support": 0.04985992986855774,
+    "contradiction": 0.8632592773846468
+   }
+  ],
+  "tcp-udp/full": [
+   {
+    "support": 0.994961158137559,
+    "contradiction": 0.0008321886537951048
+   },
+   {
+    "support": 0.5865414430621557,
+    "contradiction": 0.3811854188891695
+   },
+   {
+    "support": 0.9944339280547446,
+    "contradiction": 0.024183287828484196
+   }
+  ],
+  "tcp-udp/terse": [
+   {
+    "support": 0.015179069601765932,
+    "contradiction": 0.0016337443566847244
+   },
+   {
+    "support": 0.002424907356284734,
+    "contradiction": 0.03137564389662539
+   },
+   {
+    "support": 0.003587759005032503,
+    "contradiction": 0.0009860000074597799
+   }
+  ],
+  "tcp-udp/partial": [
+   {
+    "support": 0.2339438839440396,
+    "contradiction": 0.0025372501288444716
+   },
+   {
+    "support": 0.002054597934236181,
+    "contradiction": 0.6242091252546745
+   },
+   {
+    "support": 0.001962970945377102,
+    "contradiction": 0.022501636713555997
+   }
+  ],
+  "tcp-udp/partial-2": [
+   {
+    "support": 0.0006646780816277187,
+    "contradiction": 0.9928887471739459
+   },
+   {
+    "support": 0.010363309711245196,
+    "contradiction": 0.021083858095803303
+   },
+   {
+    "support": 0.005181763669465047,
+    "contradiction": 0.0004317465349041442
+   }
+  ],
+  "tcp-udp/swapped": [
+   {
+    "support": 0.0008155670852789521,
+    "contradiction": 0.9978127462535092
+   },
+   {
+    "support": 0.0004688335469301813,
+    "contradiction": 0.9969095712594045
+   },
+   {
+    "support": 0.0016258331338949036,
+    "contradiction": 0.0009531149998106352
+   }
+  ],
+  "tcp-udp/vague": [
+   {
+    "support": 0.04121953691199864,
+    "contradiction": 0.6825636327068197
+   },
+   {
+    "support": 0.0007756711793018001,
+    "contradiction": 0.9826634798863453
+   },
+   {
+    "support": 0.0013390837760566027,
+    "contradiction": 0.0018965174769958427
+   }
+  ],
+  "hash-collision/full": [
+   {
+    "support": 0.40954319758386276,
+    "contradiction": 0.5267712563130457
+   },
+   {
+    "support": 0.3314654544907837,
+    "contradiction": 0.44823433373942956
+   },
+   {
+    "support": 0.9687971688208405,
+    "contradiction": 0.009161113562225579
+   }
+  ],
+  "hash-collision/partial": [
+   {
+    "support": 0.03165511888081949,
+    "contradiction": 0.2567884144003764
+   },
+   {
+    "support": 0.05409946698513117,
+    "contradiction": 0.3868217047023205
+   },
+   {
+    "support": 0.015430706280180966,
+    "contradiction": 0.2647838963307787
+   }
+  ],
+  "hash-collision/partial-2": [
+   {
+    "support": 0.2398978573513183,
+    "contradiction": 0.16673746441094403
+   },
+   {
+    "support": 0.025917001084119845,
+    "contradiction": 0.8232811401601254
+   },
+   {
+    "support": 0.894413312529392,
+    "contradiction": 0.0183803353874498
+   }
+  ],
+  "hash-collision/wrong": [
+   {
+    "support": 0.0024553580265098906,
+    "contradiction": 0.9640362228228159
+   },
+   {
+    "support": 0.0011977922258403697,
+    "contradiction": 0.9185804892835185
+   },
+   {
+    "support": 0.002408178133950376,
+    "contradiction": 0.3304541307339855
+   }
+  ],
+  "hash-collision/related-wrong": [
+   {
+    "support": 0.0042031603814797446,
+    "contradiction": 0.9607812466486074
+   },
+   {
+    "support": 0.03628262104719502,
+    "contradiction": 0.1392736269116078
+   },
+   {
+    "support": 0.0017707854771262588,
+    "contradiction": 0.9735813382284237
+   }
+  ],
+  "hash-collision/vague": [
+   {
+    "support": 0.0026507781718798943,
+    "contradiction": 0.9062067585758643
+   },
+   {
+    "support": 0.005949145463730757,
+    "contradiction": 0.9379737705549073
+   },
+   {
+    "support": 0.020092354354261006,
+    "contradiction": 0.48168341129830583
+   }
+  ],
+  "recursion-base/full": [
+   {
+    "support": 0.9494513077910264,
+    "contradiction": 0.01020175558711311
+   },
+   {
+    "support": 0.8468452925301376,
+    "contradiction": 0.4338154259073799
+   }
+  ],
+  "recursion-base/partial": [
+   {
+    "support": 0.02959438563173654,
+    "contradiction": 0.017254972221456246
+   },
+   {
+    "support": 0.00044837009463969513,
+    "contradiction": 0.9805060478065866
+   }
+  ],
+  "recursion-base/partial-2": [
+   {
+    "support": 0.003987043183953387,
+    "contradiction": 0.819951261365307
+   },
+   {
+    "support": 0.002932381060941883,
+    "contradiction": 0.03554679306739454
+   }
+  ],
+  "recursion-base/negated": [
+   {
+    "support": 0.012295835198561499,
+    "contradiction": 0.008566892460652203
+   },
+   {
+    "support": 0.0004367794454976192,
+    "contradiction": 0.9621471059352672
+   }
+  ],
+  "recursion-base/related-wrong": [
+   {
+    "support": 0.0188370094529212,
+    "contradiction": 0.41178766281213364
+   },
+   {
+    "support": 0.0009052356532979637,
+    "contradiction": 0.38985744092309127
+   }
+  ],
+  "recursion-base/vague": [
+   {
+    "support": 0.005419496240665147,
+    "contradiction": 0.795154253222133
+   },
+   {
+    "support": 0.0006775293380908932,
+    "contradiction": 0.7273192763243759
+   }
+  ],
+  "demand-shift/full": [
+   {
+    "support": 0.5911351605557409,
+    "contradiction": 0.00934590723570941
+   },
+   {
+    "support": 0.5162131692888428,
+    "contradiction": 0.045945153183969634
+   }
+  ],
+  "demand-shift/terse": [
+   {
+    "support": 0.01660516039565902,
+    "contradiction": 0.002235288795472973
+   },
+   {
+    "support": 0.01269046782931424,
+    "contradiction": 0.002400242113363748
+   }
+  ],
+  "demand-shift/partial": [
+   {
+    "support": 0.011671933896011583,
+    "contradiction": 0.00040197291283567224
+   },
+   {
+    "support": 0.11921376825297669,
+    "contradiction": 0.005203850418126594
+   }
+  ],
+  "demand-shift/half-wrong": [
+   {
+    "support": 0.045313449321375966,
+    "contradiction": 0.013699165344258987
+   },
+   {
+    "support": 0.0013539176662257042,
+    "contradiction": 0.9864024481695335
+   }
+  ],
+  "demand-shift/reversed": [
+   {
+    "support": 0.0010498109038266706,
+    "contradiction": 0.9936401705607895
+   },
+   {
+    "support": 0.0016841870164436205,
+    "contradiction": 0.9928484908877444
+   }
+  ],
+  "demand-shift/vague": [
+   {
+    "support": 0.004636019271503541,
+    "contradiction": 0.8169206907972525
+   },
+   {
+    "support": 0.0038164698160881028,
+    "contradiction": 0.020890400162793393
+   }
+  ],
+  "herd-immunity/full": [
+   {
+    "support": 0.9739801765732798,
+    "contradiction": 0.0014453739127121153
+   },
+   {
+    "support": 0.9707936465820275,
+    "contradiction": 0.0014080757631523193
+   },
+   {
+    "support": 0.9775101501178267,
+    "contradiction": 0.000842258999039961
+   }
+  ],
+  "herd-immunity/partial": [
+   {
+    "support": 0.889436337472889,
+    "contradiction": 0.007048251436123988
+   },
+   {
+    "support": 0.0013175405172591273,
+    "contradiction": 0.0014894669899521247
+   },
+   {
+    "support": 0.006053269973131564,
+    "contradiction": 0.025662000699705697
+   }
+  ],
+  "herd-immunity/partial-2": [
+   {
+    "support": 0.05032583562645564,
+    "contradiction": 0.0210034036349223
+   },
+   {
+    "support": 0.8122496175780306,
+    "contradiction": 0.00475001081180832
+   },
+   {
+    "support": 0.9898720001309006,
+    "contradiction": 0.0004957396065181001
+   }
+  ],
+  "herd-immunity/wrong": [
+   {
+    "support": 0.00918174534173962,
+    "contradiction": 0.0009287710430229634
+   },
+   {
+    "support": 0.0014496490714015872,
+    "contradiction": 0.005770016873830676
+   },
+   {
+    "support": 0.0019619320184424477,
+    "contradiction": 0.004446288139421953
+   }
+  ],
+  "herd-immunity/negated": [
+   {
+    "support": 0.35203139312221,
+    "contradiction": 0.0062902429063910175
+   },
+   {
+    "support": 0.0016827143961765203,
+    "contradiction": 0.9894274913284978
+   },
+   {
+    "support": 0.004603231704809746,
+    "contradiction": 0.2531029141626504
+   }
+  ],
+  "herd-immunity/vague": [
+   {
+    "support": 0.008499954565050417,
+    "contradiction": 0.004532630734030515
+   },
+   {
+    "support": 0.0024872408616653636,
+    "contradiction": 0.01389398188090694
+   },
+   {
+    "support": 0.0014577054772948398,
+    "contradiction": 0.00523060878580912
+   }
+  ]
+ }
+}
