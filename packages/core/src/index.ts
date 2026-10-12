@@ -10,6 +10,7 @@ export * from "./grading/normalize";
 export * from "./grading/fuzzy";
 export * from "./grading/latex";
 export * from "./files";
+export * from "./registry";
 export * from "./grading/types";
 export * from "./grading/tier1";
 export * from "./grading/tier2";
