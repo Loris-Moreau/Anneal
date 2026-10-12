@@ -23,8 +23,9 @@ export function splitSentences(p: Paragraph): Sentence[] {
     while (j < p.text.length && "\"')]”’".includes(p.text[j]!)) j++;
     const atEnd = j >= p.text.length;
     if (!atEnd && (p.text[j] !== " " || !/[A-Z0-9$"“‘('\[]/.test(p.text[j + 1] ?? ""))) continue;
-    const word = (p.text.slice(start, i + 1).match(/(\S+)$/)?.[1] ?? "").toLowerCase();
-    if (p.text[i] === "." && (ABBREV.has(word) || /^[a-z]\.$/.test(word))) continue;
+    const raw = p.text.slice(start, i + 1).match(/(\S+)$/)?.[1] ?? "";
+    // Only capital single letters are initials ("J. J. Thomson"); "denoted cis x." ends a sentence.
+    if (p.text[i] === "." && (ABBREV.has(raw.toLowerCase()) || /^[A-Z]\.$/.test(raw))) continue;
     emit(j);
     start = j;
   }

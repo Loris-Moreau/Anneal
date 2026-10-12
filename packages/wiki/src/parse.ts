@@ -29,6 +29,20 @@ function isWikiLink(a: Element): boolean {
   return rel.includes("mw:WikiLink") || href.startsWith("./") || href.startsWith("/wiki/");
 }
 
+const SUP = "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿⁱ";
+const SUP_FROM = "0123456789+-=()ni";
+const SUB = "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐₑₒₓₕₖₗₘₙₚₛₜ";
+const SUB_FROM = "0123456789+-=()aeoxhklmnpst";
+
+/** CO<sub>2</sub> -> CO₂, m<sup>2</sup> -> m²; anything unmappable becomes ^(...) or _(...). */
+function script(inner: string, up: boolean): string {
+  if (up && /^(st|nd|rd|th)$/.test(inner)) return inner;
+  const [from, to] = up ? [SUP_FROM, Array.from(SUP)] : [SUB_FROM, Array.from(SUB)];
+  const chars = Array.from(inner.replace("−", "-"));
+  if (chars.every((c) => from.includes(c))) return chars.map((c) => to[from.indexOf(c)]).join("");
+  return `${up ? "^" : "_"}(${inner})`;
+}
+
 function mathOf(el: Element): { latex: string; display: boolean } | null {
   const isMath = el.tagName === "MATH" || el.matches('[typeof~="mw:Extension/math"], .mwe-math-element');
   if (!isMath) return null;
@@ -78,6 +92,13 @@ export function buildParagraph(root: Element): Paragraph | null {
     }
     const tag = el.tagName;
     if (tag === "BR") return push(" ");
+    if (tag === "SUP" || tag === "SUB") {
+      const inner = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+      if (!inner) return;
+      text = text.replace(/ $/, "");
+      text += script(inner, tag === "SUP");
+      return;
+    }
     const start = text.length;
     const kids = () => Array.from(el.childNodes).forEach(walk);
     if (tag === "A" && isWikiLink(el)) {

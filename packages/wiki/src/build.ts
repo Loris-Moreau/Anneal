@@ -13,6 +13,8 @@ export interface BuildOptions {
   maxCards?: number;
   /** History and similar sections are skipped by default: they are mostly dates and names. */
   includeHistory?: boolean;
+  /** Proof and derivation steps make poor cloze cards, so they are skipped by default. */
+  includeProofs?: boolean;
 }
 
 export interface BuildReport {
@@ -28,15 +30,16 @@ const ALWAYS_BLOCKED = new Set([
   "gallery", "in popular culture", "popular culture", "in fiction", "awards", "awards and honors", "legacy",
 ]);
 const HISTORY = new Set(["history", "etymology", "terminology", "origins", "discovery"]);
+const PROOFS = new Set(["proof", "proofs", "derivation", "derivations"]);
 
 export const PIPELINE_VERSION = "wiki-prepass-0.1";
 const titleId = (t: string) => `wiki:${t.replace(/ /g, "_")}`;
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 export function buildDeck(page: ParsedPage, opts: BuildOptions = {}): { deck: Deck; report: BuildReport } {
-  const o = { maxCardsPerSection: 6, minSectionCards: 2, maxPrerequisites: 8, maxFormulas: 5, maxCards: 60, includeHistory: false, ...opts };
+  const o = { maxCardsPerSection: 6, minSectionCards: 2, maxPrerequisites: 8, maxFormulas: 5, maxCards: 60, includeHistory: false, includeProofs: false, ...opts };
   const blocked = (s: Section) =>
-    s.path.some((h) => ALWAYS_BLOCKED.has(h.toLowerCase()) || (!o.includeHistory && HISTORY.has(h.toLowerCase())));
+    s.path.some((h) => ALWAYS_BLOCKED.has(h.toLowerCase()) || (!o.includeHistory && HISTORY.has(h.toLowerCase())) || (!o.includeProofs && PROOFS.has(h.toLowerCase())));
   const lead = page.sections[0];
   if (!lead) throw new Error("page has no sections");
   const body = page.sections.filter((s) => !blocked(s));
@@ -71,15 +74,31 @@ export function buildDeck(page: ParsedPage, opts: BuildOptions = {}): { deck: De
     if (issues.length) rejected.push({ reason: issues.map((i) => i.code).join(","), text: c.sentence });
     return issues.length === 0;
   });
-  // Greedy by score: one card per answer, and at most one link card per source sentence.
+  // Formulas that share a prompt are alternative forms of one card: the extra forms become accepted aliases.
+  const formulaByPrompt = new Map<string, Candidate>();
+  for (const c of gated.filter((g) => g.kind === "formula").sort((a, b) => b.score - a.score)) {
+    const prev = formulaByPrompt.get(c.prompt);
+    if (!prev) formulaByPrompt.set(c.prompt, { ...c, aliases: [...c.aliases] });
+    else if (!sameFormula(prev.answer, c.answer)) prev.aliases.push(c.answer);
+  }
+  // A link card whose sentence is also a formula card would show that card's answer.
+  const formulaSentences = new Set([...formulaByPrompt.values()].map((f) => f.sentence));
+  const pool = [...gated.filter((g) => g.kind !== "formula" && !(g.kind === "link" && formulaSentences.has(g.sentence))), ...formulaByPrompt.values()];
+
+  // Greedy by score: one card per answer, one link card per target and per source sentence.
   const takenAnswers = new Set<string>();
+  const takenTargets = new Set<string>();
   const takenSentences = new Set<string>();
   const best: Candidate[] = [];
-  for (const c of gated.sort((a, b) => b.score - a.score)) {
+  for (const c of pool.sort((a, b) => b.score - a.score)) {
     const key = c.format === "latex" ? `latex:${c.answer}` : canonical(c.answer);
-    if (takenAnswers.has(key) || (c.kind === "link" && takenSentences.has(c.sentence))) continue;
+    const tkey = canonical(c.target ?? c.answer);
+    if (takenAnswers.has(key) || (c.kind === "link" && (takenSentences.has(c.sentence) || takenTargets.has(tkey)))) continue;
     takenAnswers.add(key);
-    if (c.kind === "link") takenSentences.add(c.sentence);
+    if (c.kind === "link") {
+      takenSentences.add(c.sentence);
+      takenTargets.add(tkey);
+    }
     best.push(c);
   }
 

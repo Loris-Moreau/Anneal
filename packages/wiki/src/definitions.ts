@@ -10,7 +10,11 @@ export interface Definition {
   genus?: LinkSpan;
 }
 
-const COPULA = /^(?:,?\s*(?:also\s+(?:known|called|referred to)\s+as\s+[^,]{1,60},)?\s*)?(?:is|are|was|were|refers? to|denotes?)\b/i;
+const COPULA = /^(?:\s+of\s+[^,;.]{1,40}?)?(?:,?\s*(?:also\s+(?:known|called|referred to)\s+as\s+[^,]{1,60},)?\s*)?(?:is|are|was|were|refers? to|denotes?)\b/i;
+/** Heads too generic to make a useful "X is a [...]" card. */
+const GENERIC_HEADS = new Set(["system", "process", "type", "form", "kind", "set", "class", "group", "part", "member", "way", "method", "term", "word", "thing", "concept", "branch", "field", "area", "number"]);
+/** A genus link must end its noun phrase: if a plain word follows, the link is only a modifier ("philosophical movement"). */
+const PHRASE_END = new Set(["of", "in", "that", "which", "who", "whose", "where", "when", "used", "for", "with", "found", "consisting", "composed", "made", "by", "to", "from", "on", "at", "as", "and", "or", "within", "between", "among", "through", "about", "containing", "having", "produced", "formed", "involving", "based", "characterized", "defined", "known", "called"]);
 const GENUS_GAP = /^\s*(?:(?:a|an|the)\s+)?(?:[\w'-]+\s+){0,3}$/i;
 
 function fromSentence(s: Sentence, title: string): Definition | null {
@@ -28,8 +32,9 @@ function fromSentence(s: Sentence, title: string): Definition | null {
   );
   const copulaEnd = first.end + m[0].length;
   const genus = s.links.find((l) => l.start >= copulaEnd && l.start - copulaEnd <= 40 && GENUS_GAP.test(s.text.slice(copulaEnd, l.start)));
+  const next = /^\s*([A-Za-z][\w'-]*)/.exec(s.text.slice(genus?.end ?? 0))?.[1]?.toLowerCase();
   const d: Definition = { term, aliases, sentence: s };
-  if (genus) d.genus = genus;
+  if (genus && !GENERIC_HEADS.has(genus.text.toLowerCase()) && (next === undefined || PHRASE_END.has(next))) d.genus = genus;
   return d;
 }
 
