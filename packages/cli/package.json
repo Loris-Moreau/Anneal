@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@anneal/core": "workspace:*",
+    "@anneal/scorer": "workspace:*",
     "@anneal/wiki": "workspace:*"
   },
   "devDependencies": {
