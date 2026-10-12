@@ -1,6 +1,6 @@
 # Anneal
 
-Understanding-first spaced learning: typed recall, FSRS scheduling, concept-graph unlocking, decks distributed through a Git storage repo (`Anneal-Decks`).
+Understanding-first spaced learning: typed recall, FSRS scheduling, concept-graph unlocking, decks distributed through a Git storage repo [Anneal-Decks](https://github.com/Loris-Moreau/Anneal-Decks).
 
 ## Setup (Windows PowerShell)
 
