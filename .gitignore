@@ -4,3 +4,4 @@ dist
 .DS_Store
 /decks
 packages/wiki/test/fixtures/live/
+/calibration/out*
