@@ -19,6 +19,11 @@ export interface Tier2Config {
   covered: number;
   missed: number;
   contradiction: number;
+  /**
+   * Only ever settle an answer as correct; send everything else on. Small NLI models give near-zero support both to
+   * terse correct answers and to genuinely missing points, so a confident "missing" verdict is not trustworthy.
+   */
+  confirmOnly?: boolean;
 }
 
 /** Placeholders. Calibrate against a labeled answer set before trusting them. */
@@ -46,6 +51,12 @@ export async function gradeTier2(
   const covered = status.filter((s) => s === "covered").length;
   const score = covered / card.rubric.length;
   const missing = card.rubric.filter((_, i) => status[i] !== "covered");
+
+  if (cfg.confirmOnly) {
+    return covered === card.rubric.length
+      ? { verdict: "correct", confident: true, score }
+      : { verdict: "uncertain", confident: false, score, missing };
+  }
 
   // A small NLI model is noisy on contradictions and mid-range support: defer those to tier 3.
   if (status.some((s) => s === "unclear" || s === "contradicted")) {

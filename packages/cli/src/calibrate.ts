@@ -8,7 +8,7 @@ import {
 import { at } from "./util";
 
 export const CALIBRATE_USAGE = `  anneal calibrate run [--data calibration/starter.json] [--scorer local|lexical] [--embed-model ID] [--nli-model ID]
-                       [--pooling cls|mean] [--out calibration/out] [--max-false-accept 0.02] [--max-false-reject 0.1] [--min-coverage 0.1] [--strict]
+                       [--pooling cls|mean] [--premise answer|qa] [--out calibration/out] [--max-false-accept 0.02] [--max-false-reject 0.1] [--min-coverage 0.05] [--max-misgrade 0.1] [--strict]
   anneal calibrate sweep --scores calibration/out/scores.json [--data ...] [--max-false-accept ...]   (no models needed)
     "local" needs: pnpm --filter @anneal/scorer add @huggingface/transformers`;
 
@@ -23,7 +23,9 @@ const opts = {
   "max-false-accept": { type: "string" },
   "max-false-reject": { type: "string" },
   "min-coverage": { type: "string" },
+  "max-misgrade": { type: "string" },
   strict: { type: "boolean", default: false },
+  premise: { type: "string", default: "answer" },
 } as const;
 
 export async function runCalibrate(argv: string[]): Promise<number> {
@@ -37,6 +39,7 @@ export async function runCalibrate(argv: string[]): Promise<number> {
     maxFalseAccept: Number(values["max-false-accept"] ?? DEFAULT_CONSTRAINTS.maxFalseAccept),
     maxFalseReject: Number(values["max-false-reject"] ?? DEFAULT_CONSTRAINTS.maxFalseReject),
     minCoverage: Number(values["min-coverage"] ?? DEFAULT_CONSTRAINTS.minCoverage),
+    maxMisgrade: Number(values["max-misgrade"] ?? DEFAULT_CONSTRAINTS.maxMisgrade),
   };
   const items = parseDataset(await readFile(at(values.data), "utf8"));
   const out = at(values.out);
@@ -58,8 +61,9 @@ export async function runCalibrate(argv: string[]): Promise<number> {
           ...(values["embed-model"] ? { embedModel: values["embed-model"] } : {}),
           ...(values["nli-model"] ? { nliModel: values["nli-model"] } : {}),
           ...(values.pooling === "mean" || values.pooling === "cls" ? { pooling: values.pooling } : {}),
+          ...(values.premise === "qa" ? { premiseContext: true } : {}),
         });
-    label = lexical ? "lexical baseline" : `local (${values["embed-model"] ?? "default embedder"} + ${values["nli-model"] ?? "default NLI"})`;
+    label = lexical ? "lexical baseline" : `local (${values["embed-model"] ?? "default embedder"} + ${values["nli-model"] ?? "default NLI"}${values.premise === "qa" ? ", question in premise" : ""})`;
     const started = Date.now();
     table = await scoreItems(items, scorer, (d, n) => process.stdout.write(`\rscoring ${d}/${n}`));
     process.stdout.write(`\rscored ${items.length} items in ${((Date.now() - started) / 1000).toFixed(1)}s\n`);
