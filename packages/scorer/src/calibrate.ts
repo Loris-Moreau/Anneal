@@ -142,8 +142,9 @@ export interface SweepResult {
 
 export async function sweep(items: readonly CalibrationItem[], table: ScoreTable, constraints: Constraints = DEFAULT_CONSTRAINTS): Promise<SweepResult> {
   const all: Metrics[] = [];
-  for (const covered of range(0.5, 0.95, 0.05))
-    for (const missed of range(0.05, 0.5, 0.05))
+  // NLI probabilities for true paraphrases are often well below 0.5, so the grid must reach low thresholds.
+  for (const covered of range(0.1, 0.95, 0.05))
+    for (const missed of [0.02, 0.05, ...range(0.1, 0.5, 0.05)])
       for (const contradiction of [0.3, 0.5, 0.7, 0.9, 2]) {
         if (missed >= covered) continue;
         all.push(await evaluate(items, table, { covered, missed, contradiction }));
@@ -174,7 +175,16 @@ export function pointSeparation(items: readonly CalibrationItem[], table: ScoreT
       (c ? posContra : negContra).push(s.contradiction);
     });
   const mean = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : NaN);
-  return { supportAuc: auc(pos, neg), contradictionAuc: auc(negContra, posContra), meanSupportCovered: mean(pos), meanSupportUncovered: mean(neg), points: pos.length + neg.length };
+  // Per-component AUC when the scorer recorded its raw components: shows which signal carries the grading.
+  const components: Record<string, number> = {};
+  const keys = new Set<string>();
+  for (const it of items) for (const s of table[it.id] ?? []) Object.keys(s.detail ?? {}).forEach((k) => keys.add(k));
+  for (const k of keys) {
+    const p2: number[] = [], n2: number[] = [];
+    for (const it of items) it.covered.forEach((c, i) => ((c ? p2 : n2).push(table[it.id]![i]!.detail?.[k] ?? NaN)));
+    if (![...p2, ...n2].some(Number.isNaN)) components[k] = auc(p2, n2);
+  }
+  return { supportAuc: auc(pos, neg), contradictionAuc: auc(negContra, posContra), meanSupportCovered: mean(pos), meanSupportUncovered: mean(neg), points: pos.length + neg.length, components };
 }
 
 /* ---------- report ---------- */
@@ -194,6 +204,7 @@ export function formatReport(items: readonly CalibrationItem[], table: ScoreTabl
     `items: ${items.length}  sources: ${JSON.stringify(bySource)}  human verdicts: ${JSON.stringify(truth)}`,
     `per-point support AUC: ${sep.supportAuc.toFixed(3)} (0.5 = chance)  mean support covered ${sep.meanSupportCovered.toFixed(2)} vs uncovered ${sep.meanSupportUncovered.toFixed(2)}`,
     `contradiction AUC (uncovered vs covered points): ${sep.contradictionAuc.toFixed(3)}`,
+    ...(Object.keys(sep.components).length ? [`component AUC (covered vs uncovered): ${Object.entries(sep.components).map(([k, v]) => `${k} ${v.toFixed(3)}`).join(", ")}`] : []),
     `constraints: false-accept <= ${pct(constraints.maxFalseAccept)}, false-reject <= ${pct(constraints.maxFalseReject)}, settled locally >= ${pct(constraints.minCoverage ?? 0.1)}`,
   ];
   if (result.best) {

@@ -6,6 +6,8 @@ export interface KeyPointScore {
   support: number;
   /** 0..1: how strongly the answer contradicts the key point. */
   contradiction: number;
+  /** Raw components behind the two numbers (similarity, entailment, neutral, ...). Lets calibration compare ways of combining them. */
+  detail?: Record<string, number>;
 }
 
 /** Implemented later by a local embedding + NLI model (ONNX/WASM). The core only defines the contract. */

@@ -25,9 +25,11 @@ export function createKeyPointScorer(deps: { embedder: Embedder; nli: NliModel }
 
       const pairs: { premise: string; hypothesis: string }[] = [];
       const owner: number[] = [];
+      const similarity: number[] = [];
       keyPoints.forEach((kp, k) => {
         const sims = sentVecs.map((v) => cosine(v, pointVecs[k]!));
         const best = sims.indexOf(Math.max(...sims));
+        similarity[k] = sims[best]!;
         if (sims[best]! < minSim) return;
         const premises = new Set([sents[best]!]);
         if (sents.length > 1) premises.add(answer);
@@ -37,13 +39,19 @@ export function createKeyPointScorer(deps: { embedder: Embedder; nli: NliModel }
         }
       });
 
-      const out: KeyPointScore[] = keyPoints.map(() => ({ support: 0, contradiction: 0 }));
+      const out: KeyPointScore[] = keyPoints.map((_, k) => ({
+        support: 0,
+        contradiction: 0,
+        detail: { similarity: similarity[k] ?? 0, entailment: 0, neutral: 1 },
+      }));
       if (pairs.length === 0) return out;
       const probs = await deps.nli.classify(pairs);
       probs.forEach((p, i) => {
         const o = out[owner[i]!]!;
+        if (p.entailment >= o.support) o.detail!["neutral"] = p.neutral;
         o.support = Math.max(o.support, p.entailment);
         o.contradiction = Math.max(o.contradiction, p.contradiction);
+        o.detail!["entailment"] = o.support;
       });
       return out;
     },

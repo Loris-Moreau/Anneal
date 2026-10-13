@@ -45,7 +45,7 @@ describe("createKeyPointScorer", () => {
   it("skips the NLI model for unrelated answers", async () => {
     const nli = fakeNli();
     const out = await createKeyPointScorer({ embedder, nli }).score("zzz qqq", kps, { prompt: "" });
-    expect(out).toEqual([{ support: 0, contradiction: 0 }, { support: 0, contradiction: 0 }]);
+    expect(out.map((o) => [o.support, o.contradiction])).toEqual([[0, 0], [0, 0]]);
     expect(nli.classify).not.toHaveBeenCalled();
   });
 
@@ -63,6 +63,12 @@ describe("createKeyPointScorer", () => {
     const nli1 = fakeNli();
     await createKeyPointScorer({ embedder, nli: nli1 }).score("Folding increases the surface area.", kps, { prompt: "" });
     expect(new Set(nli1.classify.mock.calls[0]![0].map((p) => p.premise)).size).toBe(1);
+  });
+
+  it("records the raw components behind each score", async () => {
+    const out = await createKeyPointScorer({ embedder, nli: fakeNli() }).score("The inner membrane is folded into cristae.", kps, { prompt: "" });
+    expect(out[0]!.detail).toMatchObject({ entailment: expect.any(Number), neutral: expect.any(Number), similarity: expect.any(Number) });
+    expect(out[0]!.detail!["similarity"]).toBeGreaterThan(0.25);
   });
 
   it("surfaces contradictions that embeddings alone would miss", async () => {

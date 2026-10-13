@@ -27,7 +27,7 @@ If install ends with `ERR_PNPM_IGNORED_BUILDS` (esbuild), run `pnpm approve-buil
 ## Generate a deck
 
 ```
-$env:ANNEAL_USER_AGENT = "Anneal/0.1 (https://github.com/Loris-Moreau/Anneal)"
+$env:ANNEAL_USER_AGENT = "Anneal/0.1 (https://github.com/<you>/Anneal;)"
 pnpm anneal wiki "Kinetic energy" --show --save-html packages/wiki/test/fixtures/kinetic-energy-live.html
 ```
 
@@ -35,7 +35,7 @@ Writes `decks/wiki-kinetic-energy/{meta.json,deck.jsonl,graph.json,report.json}`
 
 ## Publish decks (storage repo)
 
-`Anneal-Decks` is a separate repo (scaffold shipped alongside this one). Its CI runs this repo's validator.
+[Anneal-Decks](https://github.com/Loris-Moreau/Anneal-Decks) is a separate repo (scaffold shipped alongside this one). Its CI runs this repo's validator.
 
 ```
 pnpm anneal validate decks                      # same checks CI runs
@@ -53,7 +53,7 @@ pnpm --filter @anneal/scorer add @huggingface/transformers
 pnpm anneal calibrate run                       # local embedding + NLI models
 ```
 
-Reports per-point AUC, then sweeps tier-2 thresholds for the most answers settled locally within a false-accept and false-reject budget, and writes `thresholds.json`. Add real answers to the dataset (format in `packages/scorer/src/calibrate.ts`) until you have about 200 before trusting the numbers.
+Reports per-point and per-component AUC (similarity, entailment), then sweeps tier-2 thresholds for the most answers settled locally within a false-accept and false-reject budget, and writes `thresholds.json`. An infeasible result exits 0 (it is a finding); add `--strict` to fail scripts. `calibrate sweep --scores calibration/out/scores.json` re-runs the threshold search without models. Add real answers to the dataset (format in `packages/scorer/src/calibrate.ts`) until you have about 200 before trusting the numbers.
 
 ## Design rules enforced in code
 

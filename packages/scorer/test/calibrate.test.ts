@@ -105,3 +105,21 @@ describe("lexical baseline on the starter set", () => {
     expect(sep.contradictionAuc).toBe(0.5);
   });
 });
+
+describe("wide grid and diagnostics", () => {
+  /** Conservative scorer: true paraphrases only reach ~0.25 support, but uncovered points stay near zero. */
+  const lowButSeparable = (): ScoreTable => {
+    const r = rng(3);
+    return Object.fromEntries(items.map((it) => [it.id, it.covered.map((c) => ({ support: (c ? 0.27 : 0.03) + Math.abs(r()) * 0.05, contradiction: 0.02 }))]));
+  };
+  it("finds a feasible setting below the old 0.5 floor", async () => {
+    const r = await sweep(items, lowButSeparable());
+    expect(r.best).not.toBeNull();
+    expect(r.best!.cfg.covered).toBeLessThan(0.5);
+    expect(r.best!.falseReject).toBeLessThanOrEqual(DEFAULT_CONSTRAINTS.maxFalseReject);
+  });
+  it("reports per-component AUC when the scorer records components", () => {
+    const table: ScoreTable = Object.fromEntries(items.map((it) => [it.id, it.covered.map((c) => ({ support: c ? 0.8 : 0.1, contradiction: 0, detail: { similarity: c ? 0.8 : 0.5, entailment: c ? 0.8 : 0.1 } }))]));
+    expect(pointSeparation(items, table).components).toEqual({ similarity: 1, entailment: 1 });
+  });
+});

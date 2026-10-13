@@ -8,7 +8,7 @@ import {
 import { at } from "./util";
 
 export const CALIBRATE_USAGE = `  anneal calibrate run [--data calibration/starter.json] [--scorer local|lexical] [--embed-model ID] [--nli-model ID]
-                       [--pooling cls|mean] [--out calibration/out] [--max-false-accept 0.02] [--max-false-reject 0.1] [--min-coverage 0.1]
+                       [--pooling cls|mean] [--out calibration/out] [--max-false-accept 0.02] [--max-false-reject 0.1] [--min-coverage 0.1] [--strict]
   anneal calibrate sweep --scores calibration/out/scores.json [--data ...] [--max-false-accept ...]   (no models needed)
     "local" needs: pnpm --filter @anneal/scorer add @huggingface/transformers`;
 
@@ -23,6 +23,7 @@ const opts = {
   "max-false-accept": { type: "string" },
   "max-false-reject": { type: "string" },
   "min-coverage": { type: "string" },
+  strict: { type: "boolean", default: false },
 } as const;
 
 export async function runCalibrate(argv: string[]): Promise<number> {
@@ -75,5 +76,6 @@ export async function runCalibrate(argv: string[]): Promise<number> {
     await writeFile(join(out, "thresholds.json"), thresholdsFile(result.best));
     console.log(`\nwrote ${join(out, "thresholds.json")}: pass its "tier2" object as GraderConfig.tier2`);
   }
-  return result.best ? 0 : 1;
+  // An infeasible result is a finding, not a crash. --strict turns it into a failing exit code for scripts.
+  return !result.best && values.strict ? 1 : 0;
 }
