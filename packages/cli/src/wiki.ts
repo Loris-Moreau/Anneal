@@ -3,9 +3,11 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { serializeDeck } from "@anneal/core";
 import { buildDeck, fetchPage, parsePage } from "@anneal/wiki";
-import { at } from "./util";
+import { publishDeckDir } from "./decks";
+import { at, defaultDecksRepo } from "./util";
 
-export const WIKI_USAGE = `  anneal wiki <Page title> [--out decks] [--show] [--save-html file.html]
+export const WIKI_USAGE = `  anneal wiki <Page title> [--out decks] [--show] [--save-html file.html] [--publish [--to <Anneal-Decks clone>]]
+    --publish validates the deck and copies it into ../Anneal-Decks (or --to / $ANNEAL_DECKS_REPO). It never runs git.
   anneal wiki <Page title> --html file.html [--revision N] [--out decks] [--show]
     Set ANNEAL_USER_AGENT to a descriptive string with a contact URL before fetching (Wikimedia policy).`;
 
@@ -19,6 +21,8 @@ export async function runWiki(argv: string[]): Promise<number> {
       out: { type: "string", default: "decks" },
       show: { type: "boolean", default: false },
       "save-html": { type: "string" },
+      publish: { type: "boolean", default: false },
+      to: { type: "string" },
     },
   });
   const wanted = positionals.join(" ").trim();
@@ -59,5 +63,6 @@ export async function runWiki(argv: string[]): Promise<number> {
       console.log(`\n[${c.conceptId}] ${c.format === "latex" ? "(latex) " : ""}${c.prompt}\n  -> ${c.answer}${also}`);
     }
   }
+  if (values.publish) return publishDeckDir(dir, values.to ? at(values.to) : defaultDecksRepo());
   return 0;
 }

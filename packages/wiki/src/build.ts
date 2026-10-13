@@ -55,7 +55,9 @@ export function buildDeck(page: ParsedPage, opts: BuildOptions = {}): { deck: De
         freq.set(l.target, (freq.get(l.target) ?? 0) + 1);
         if (s.id === 0 && !leadTargets.includes(l.target)) leadTargets.push(l.target);
       }
-  const ctx = { title: page.title, leadTargets: new Set(leadTargets), freq };
+  const common = new Set<string>(canonical(page.title).split(" "));
+  for (const sec of body) for (const p of sec.paragraphs) for (const m of p.text.matchAll(/(?<![\w])[a-z][\w'-]*/g)) common.add(m[0]);
+  const ctx = { title: page.title, leadTargets: new Set(leadTargets), freq, common };
 
   const cands: Candidate[] = [];
   const def = extractDefinition(lead.paragraphs, page.title);

@@ -4,11 +4,11 @@ import { basename, join, relative } from "node:path";
 import {
   buildIndex, buildIndexEntry, checkDeckFiles, diffCards, OPEN_LICENSES, parseDeckFiles, DECK_FILE_NAMES, type DeckFiles,
 } from "@anneal/core";
-import { at } from "./util";
+import { at, defaultDecksRepo } from "./util";
 
 export const DECKS_USAGE = `  anneal validate [decksDir=decks] [--github] [--allowed-licenses CC-BY-SA-4.0,CC0-1.0]
   anneal index [decksDir=decks] [--out index.json]
-  anneal publish <deckDir> --to <path to Anneal-Decks clone> [--allowed-licenses ...]`;
+  anneal publish <deckDir> [--to <Anneal-Decks clone>] [--allowed-licenses ...]   (default: ../Anneal-Decks or $ANNEAL_DECKS_REPO)`;
 
 async function readDeckDir(dir: string): Promise<DeckFiles> {
   const [meta, jsonl, graph] = await Promise.all(DECK_FILE_NAMES.map((n) => readFile(join(dir, n), "utf8")));
@@ -82,26 +82,22 @@ export async function runIndex(argv: string[]): Promise<number> {
   return 0;
 }
 
-export async function runPublish(argv: string[]): Promise<number> {
-  const { positionals, values } = parseArgs({
-    args: argv,
-    allowPositionals: true,
-    options: { to: { type: "string" }, "allowed-licenses": { type: "string" } },
-  });
-  const src = positionals[0];
-  if (!src || !values.to) {
-    console.error(DECKS_USAGE);
-    return 2;
+/** Validate a generated deck folder and copy meta.json, deck.jsonl, graph.json into <repo>/decks/<id>/. */
+export async function publishDeckDir(srcDir: string, repo: string, allowed?: readonly string[]): Promise<number> {
+  try {
+    if (!(await stat(join(repo, "decks"))).isDirectory()) throw new Error();
+  } catch {
+    console.error(`not a deck repo: ${repo} has no decks/ folder. Clone Anneal-Decks next to this repo, or pass --to <path> / set ANNEAL_DECKS_REPO.`);
+    return 1;
   }
-  const srcDir = at(src);
   const files = await readDeckDir(srcDir);
-  const issues = checkDeckFiles(basename(srcDir), files, { allowedLicenses: licensesOf(values["allowed-licenses"]) });
+  const issues = checkDeckFiles(basename(srcDir), files, allowed ? { allowedLicenses: allowed } : {});
   if (issues.length) {
     for (const i of issues) console.error(`not publishable: ${i}`);
     return 1;
   }
   const deck = parseDeckFiles(files);
-  const dest = join(at(values.to), "decks", deck.meta.id);
+  const dest = join(repo, "decks", deck.meta.id);
   try {
     const before = parseDeckFiles(await readDeckDir(dest));
     const d = diffCards(before.cards, deck.cards);
@@ -111,6 +107,20 @@ export async function runPublish(argv: string[]): Promise<number> {
   }
   await mkdir(dest, { recursive: true });
   for (const n of DECK_FILE_NAMES) await writeFile(join(dest, n), files[n]);
-  console.log(`copied to ${dest}\nnext: cd ${at(values.to)} && git add decks && git commit -m "Add ${deck.meta.id}" && git push (or open a PR)`);
+  console.log(`copied to ${dest}\nnext: cd ${repo} && git add decks && git commit -m "Add ${deck.meta.id}" && git push`);
   return 0;
+}
+
+export async function runPublish(argv: string[]): Promise<number> {
+  const { positionals, values } = parseArgs({
+    args: argv,
+    allowPositionals: true,
+    options: { to: { type: "string" }, "allowed-licenses": { type: "string" } },
+  });
+  const src = positionals[0];
+  if (!src) {
+    console.error(DECKS_USAGE);
+    return 2;
+  }
+  return publishDeckDir(at(src), values.to ? at(values.to) : defaultDecksRepo(), values["allowed-licenses"] ? licensesOf(values["allowed-licenses"]) : undefined);
 }

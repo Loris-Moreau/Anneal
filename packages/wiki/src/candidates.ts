@@ -75,7 +75,23 @@ const REL = new RegExp(
 );
 const MONTHS = /^(january|february|march|april|may|june|july|august|september|october|november|december)\b/i;
 
-const CONTEXT_START = /^(?:such|this|these|that|those|it|its|they|their|he|she|his|her|however|thus|therefore|hence|moreover|furthermore|additionally|also|nevertheless|consequently|in addition|as a result|for example|for instance)\b/i;
+const CONTEXT_START = /^(?:such|this|these|that|those|it|its|they|their|he|she|his|her|here|however|thus|therefore|hence|moreover|furthermore|additionally|also|nevertheless|consequently|similarly|likewise|meanwhile|subsequently|conversely|finally|in other|other|in addition|as a result|for example|for instance)\b/i;
+const DEICTIC = /\b(?:this|these|those|he|she|him|his|her|above|below)\b|\bthe (?:same|other)\b/i;
+/** "φ is the argument of z..." defines a symbol from the formula before it. */
+const SYMBOL_START = /^\p{L}\s+(?:is|are|and|denotes?)\b/u;
+
+/** True when a sentence only makes sense with the text around it. */
+export function contextDependent(text: string): boolean {
+  const plain = text.replace(/\$[^$]*\$/g, "X");
+  return CONTEXT_START.test(plain) || DEICTIC.test(plain) || SYMBOL_START.test(plain);
+}
+
+/** Cross-domain generic nouns: a blank on one of these is guessable and the link target is ambiguous. */
+const GENERIC_ANSWERS = new Set([
+  "species", "organism", "organisms", "type", "types", "form", "forms", "kind", "process", "processes", "system", "systems", "method",
+  "methods", "example", "examples", "group", "groups", "result", "results", "effect", "effects", "rate", "area", "field", "number",
+  "part", "parts", "structure", "structures", "function", "functions", "property", "properties", "model", "models", "light",
+]);
 
 export function isConceptTarget(target: string, title: string): boolean {
   return (
@@ -89,12 +105,14 @@ export function isConceptTarget(target: string, title: string): boolean {
 
 export interface LinkContext {
   title: string;
+  /** Lowercase words seen in the page prose (plus the title's words): anything else capitalized is a proper name. */
+  common?: ReadonlySet<string>;
   leadTargets: ReadonlySet<string>;
   freq: ReadonlyMap<string, number>;
 }
 
 /** Why a sentence is not worth turning into a card, or null if it is. Filters trivia: dates, number lists, bare facts. */
-export function rejectSentence(s: Sentence): string | null {
+export function rejectSentence(s: Sentence, common?: ReadonlySet<string>): string | null {
   const plain = s.text.replace(/\$[^$]*\$/g, "X");
   const words = plain.split(/\s+/).length;
   if (words < 9 || words > 45) return "length";
@@ -103,8 +121,12 @@ export function rejectSentence(s: Sentence): string | null {
   if (!REL.test(plain)) return "no relation";
   if (!/[.!?]["')\]]*$/.test(s.text.trim())) return "fragment";
   if (s.math.some((m) => m.latex.length > 80 || /\\begin/.test(m.latex))) return "long math";
-  // Sentences that only make sense with the text around them.
-  if (CONTEXT_START.test(plain) || /\b(?:this|these|those|he|she|him|his|her|above|below)\b/i.test(plain)) return "context-dependent";
+  if (contextDependent(s.text)) return "context-dependent";
+  // A capitalized first word that never appears in lowercase on the page is a name: sentences about named people are trivia.
+  if (common) {
+    const first = /^[A-Za-z][\w'-]*/.exec(s.text)?.[0];
+    if (first && /^[A-Z]/.test(first) && !common.has(first.toLowerCase())) return "named subject";
+  }
   return null;
 }
 
@@ -124,6 +146,7 @@ function pickLinks(s: Sentence, ctx: LinkContext): LinkSpan[] {
       !/\d/.test(l.text) &&
       !boldInside(l) &&
       !scopePhrase(s, l) &&
+      !GENERIC_ANSWERS.has(canonical(l.text)) &&
       isConceptTarget(l.target, ctx.title) &&
       !canonical(l.text).split(" ").every((t) => titleTokens.has(t)) &&
       (ctx.leadTargets.has(l.target) || (ctx.freq.get(l.target) ?? 0) >= 2)
@@ -138,7 +161,7 @@ export function linkCandidates(section: Section, ctx: LinkContext, skip: Readonl
   for (const para of section.paragraphs) {
     for (const s of splitSentences(stripParentheticals(para))) {
       if (skip.has(s.text)) continue;
-      const why = rejectSentence(s);
+      const why = rejectSentence(s, ctx.common);
       if (why) {
         rejected.push({ reason: why, text: s.text });
         continue;
@@ -158,7 +181,8 @@ export function linkCandidates(section: Section, ctx: LinkContext, skip: Readonl
           sentence: s.text,
           target: l.target,
           section,
-          score: (ctx.freq.get(l.target) ?? 0) * 2 + (ctx.leadTargets.has(l.target) ? 3 : 0) + (section.id === 0 ? 1 : 0),
+          // Frequency is capped: the most frequent links are the most generic. Longer terms are more specific.
+          score: Math.min(ctx.freq.get(l.target) ?? 0, 4) * 2 + (ctx.leadTargets.has(l.target) ? 3 : 0) + (section.id === 0 ? 1 : 0) + Math.min(l.text.length / 10, 2),
         });
       }
     }
@@ -208,9 +232,10 @@ export function formulaCandidates(section: Section, title: string): Candidate[] 
       if (displayOnly) {
         const prev = section.paragraphs[i - 1];
         const lead = prev && splitSentences(prev).at(-1);
-        if (lead && lead.text.split(/\s+/).length >= 6 && !lead.text.includes(eq.rhs)) prompt = `${lead.text} ${stem}`;
+        if (lead && lead.text.split(/\s+/).length >= 6 && !contextDependent(lead.text) && !lead.text.includes(eq.rhs)) prompt = `${lead.text} ${stem}`;
       } else {
         const s = splitSentences(para).find((x) => x.math.some((y) => y.latex === m.latex));
+        if (s && contextDependent(s.text)) continue; // "To do this, we use..." has no meaning on its own
         if (s) {
           const own = s.math.find((y) => y.latex === m.latex)!;
           prompt = s.text.slice(0, own.start) + stem + s.text.slice(own.end);

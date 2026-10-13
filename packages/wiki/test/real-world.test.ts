@@ -115,3 +115,42 @@ describe("formula cards", () => {
     expect(without.some((c) => c.format === "text" && c.prompt.includes("\\cos x"))).toBe(false);
   });
 });
+
+describe("second live run: remaining defects", () => {
+  const lead = `<p><b>Stoicism</b> is a ${link("Philosophy", "philosophy")} of ${link("Fatalism", "fatalism")} and ${link("Cyanobacteria", "cyanobacteria")} are mentioned.</p>`;
+  const body = (...ps: string[]) => `<h2 id="X">Detail</h2>${ps.map((p) => `<p>${p}</p>`).join("")}`;
+  const cards = (...ps: string[]) => buildDeck(page("Stoicism", lead, body(...ps))).deck.cards;
+
+  it("drops sentences whose subject is a name never seen in lowercase", () => {
+    const c = cards(
+      `Diodorus had defined possibility in a way which seemed to adopt a form of ${link("Fatalism", "fatalism")}.`,
+      `Cyanobacteria appeared later; the ${link("Fatalism", "oxygen")} they produced contributed directly to the oxygenation of the Earth.`,
+    );
+    expect(c.some((x) => x.prompt.includes("Diodorus"))).toBe(false);
+    expect(c.some((x) => x.prompt.startsWith("Cyanobacteria appeared"))).toBe(true);
+  });
+
+  it("skips generic answers", () => {
+    const c = cards(`While the details may differ between ${link("Species", "species")}, the process always begins when energy is absorbed by the ${link("Fatalism", "fatalism")} centers.`);
+    expect(c.some((x) => x.answer === "species")).toBe(false);
+  });
+
+  it.each([
+    "Here φ is the angle that a line connecting the origin with a point on the unit circle makes with the positive real axis.",
+    "In other bacteria, different mechanisms like the reverse cycle are used to achieve the same end for the cell.",
+    "Finally, the other exponential law produces several trigonometric identities for every integer value of the exponent k.",
+    "φ is the argument of z, i.e., the angle between the axis and the vector measured counterclockwise in units of an angle.",
+  ])("rejects text that leans on earlier context: %s", (t) => expect(rejectSentence(para(t))).toBe("context-dependent"));
+
+  it("rejects an unseen capitalized subject only when a vocabulary is supplied", () => {
+    const t = "Diodorus had defined possibility in a way which seemed to adopt a form of fatalism.";
+    expect(rejectSentence(para(t))).toBeNull();
+    expect(rejectSentence(para(t), new Set(["fatalism", "form"]))).toBe("named subject");
+  });
+
+  it("drops inline-formula cards whose sentence depends on earlier text", () => {
+    const d = buildDeck(page("Euler's formula", `<p><b>Euler's formula</b> is a ${link("Mathematical formula", "mathematical formula")} in analysis.</p>`,
+      `<h2 id="Use">Use</h2><p>To do this, we also use the definition of the logarithm: ${math("a = e^{\\ln a}")} and that holds for any complex numbers a and b.</p>`)).deck;
+    expect(d.cards.filter((c) => c.format === "latex")).toHaveLength(0);
+  });
+});
