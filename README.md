@@ -27,7 +27,7 @@ If install ends with `ERR_PNPM_IGNORED_BUILDS` (esbuild), run `pnpm approve-buil
 ## Generate a deck
 
 ```
-$env:ANNEAL_USER_AGENT = "Anneal/0.1 (https://github.com/<you>/Anneal;)"
+$env:ANNEAL_USER_AGENT = "Anneal/0.1 (https://github.com/<you>/Anneal; you@example.com)"
 pnpm anneal wiki "Kinetic energy" --show --save-html packages/wiki/test/fixtures/kinetic-energy-live.html
 ```
 
@@ -53,7 +53,13 @@ pnpm --filter @anneal/scorer add @huggingface/transformers
 pnpm anneal calibrate run                       # local embedding + NLI models
 ```
 
-Reports per-point and per-component AUC (similarity, entailment), then sweeps tier-2 thresholds for the most answers settled locally within a false-accept and false-reject budget, and writes `thresholds.json`. An infeasible result exits 0 (it is a finding); add `--strict` to fail scripts. `calibrate sweep --scores calibration/out/scores.json` re-runs the threshold search without models. Add real answers to the dataset (format in `packages/scorer/src/calibrate.ts`) until you have about 200 before trusting the numbers.
+Reports per-point and per-component AUC (similarity, entailment), then sweeps tier-2 thresholds for the most answers settled locally within a false-accept and false-reject budget, and writes `thresholds.json`. Tier 2 has two modes. Symmetric mode settles answers as correct, partial, or incorrect. **Confirm-only** mode settles only correct answers and sends everything else to tier 3 or self-rating. Small NLI models give near-zero support to terse correct answers and to missing points alike, so a confident "missing" is unreliable; the sweep tries both modes and the constraints (false-accept, false-reject, misgraded, minimum settled) decide. Apply `thresholds.json` as `GraderConfig.tier2` (it includes `confirmOnly`). Experiment: `--premise qa` prefixes the question to the NLI premise, which may help terse answers. The report prints how many errors a zero-error result could still hide (Wilson upper bound): with 47 wrong answers, 0 false accepts is compatible with a true rate of 7.6%.
+
+An infeasible result exits 0 (it is a finding); add `--strict` to fail scripts. `calibrate sweep --scores calibration/out/scores.json` re-runs the threshold search without models. Add real answers to the dataset (format in `packages/scorer/src/calibrate.ts`) until you have about 200 before trusting the numbers.
+
+## Writing rubric key points (for the LLM stage)
+
+Tier 2 scores each key point as an NLI hypothesis, so write them as short, standalone claims: explicit subject, no pronouns ("They occur in..." scored 0.00 against a correct answer), one fact each, and no detail a correct answer may reasonably omit ("...of the chloroplast"). 2-4 per card.
 
 ## Design rules enforced in code
 
