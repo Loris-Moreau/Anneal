@@ -80,5 +80,8 @@ export async function createLocalScorer(o: TransformersOptions & ScorerOptions =
   const pooling = o.pooling ?? "cls";
   const embedder = await createTransformersEmbedder(o.embedModel ?? DEFAULT_MODELS.embed, o.dtype ? { pooling, dtype: o.dtype } : { pooling });
   const nli = await createTransformersNli(o.nliModel ?? DEFAULT_MODELS.nli, o.dtype ? { dtype: o.dtype } : {});
-  return createKeyPointScorer({ embedder, nli }, o.minSimilarity !== undefined ? { minSimilarity: o.minSimilarity } : {});
+  return createKeyPointScorer({ embedder, nli }, {
+    ...(o.minSimilarity !== undefined ? { minSimilarity: o.minSimilarity } : {}),
+    ...(o.premiseContext ? { premiseContext: true } : {}),
+  });
 }

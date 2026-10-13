@@ -5,6 +5,8 @@ import { cosine, splitAnswerSentences } from "./text";
 export interface ScorerOptions {
   /** Key points whose best answer sentence is less similar than this skip the NLI model: support 0. */
   minSimilarity?: number;
+  /** Prefix the question to each NLI premise so terse answers ("Toward higher solute concentration") have a subject. */
+  premiseContext?: boolean;
 }
 
 /**
@@ -16,7 +18,8 @@ export interface ScorerOptions {
 export function createKeyPointScorer(deps: { embedder: Embedder; nli: NliModel }, opts: ScorerOptions = {}): KeyPointScorer {
   const minSim = opts.minSimilarity ?? 0.25;
   return {
-    async score(answer, keyPoints) {
+    async score(answer, keyPoints, ctx) {
+      const withQuestion = (text: string) => (opts.premiseContext && ctx?.prompt ? `${ctx.prompt} ${text}` : text);
       const sentences = splitAnswerSentences(answer);
       const sents = sentences.length ? sentences : [answer];
       const vectors = await deps.embedder.embed([...sents, ...keyPoints]);
@@ -34,7 +37,7 @@ export function createKeyPointScorer(deps: { embedder: Embedder; nli: NliModel }
         const premises = new Set([sents[best]!]);
         if (sents.length > 1) premises.add(answer);
         for (const premise of premises) {
-          pairs.push({ premise, hypothesis: kp });
+          pairs.push({ premise: withQuestion(premise), hypothesis: kp });
           owner.push(k);
         }
       });

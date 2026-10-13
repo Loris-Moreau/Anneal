@@ -97,10 +97,12 @@ export interface Metrics {
   falseReject: number;
   falseRejectCount: number;
   correct: number;
+  /** Share of fully-correct answers tier 2 confirmed as correct. */
+  recall: number;
 }
 
 export async function evaluate(items: readonly CalibrationItem[], table: ScoreTable, cfg: Tier2Config): Promise<Metrics> {
-  let decided = 0, wrong = 0, fa = 0, fr = 0, nonCorrect = 0, correct = 0;
+  let decided = 0, wrong = 0, fa = 0, fr = 0, nonCorrect = 0, correct = 0, tp = 0;
   for (const it of items) {
     const truth = truthVerdict(it.covered);
     truth === "correct" ? correct++ : nonCorrect++;
@@ -111,23 +113,26 @@ export async function evaluate(items: readonly CalibrationItem[], table: ScoreTa
     decided++;
     if (r.verdict !== truth) wrong++;
     if (r.verdict === "correct" && truth !== "correct") fa++;
+    if (r.verdict === "correct" && truth === "correct") tp++;
     if (truth === "correct" && r.verdict !== "correct") fr++;
   }
   const n = items.length;
   return {
     cfg, n, decided, coverage: n ? decided / n : 0, misgrade: decided ? wrong / decided : 0,
     falseAccept: nonCorrect ? fa / nonCorrect : 0, falseAcceptCount: fa, nonCorrect,
-    falseReject: correct ? fr / correct : 0, falseRejectCount: fr, correct,
+    falseReject: correct ? fr / correct : 0, falseRejectCount: fr, correct, recall: correct ? tp / correct : 0,
   };
 }
 
 export interface Constraints {
   maxFalseAccept: number;
   maxFalseReject: number;
-  /** A setting that settles fewer answers than this locally is not worth running. Default 0.1. */
+  /** A setting that settles fewer answers than this locally is not worth running. Default 0.05. */
   minCoverage?: number;
+  /** Settled verdicts that disagree with the human verdict (e.g. "incorrect" for a partial answer give wrong feedback). Default 0.1. */
+  maxMisgrade?: number;
 }
-export const DEFAULT_CONSTRAINTS: Constraints = { maxFalseAccept: 0.02, maxFalseReject: 0.1, minCoverage: 0.1 };
+export const DEFAULT_CONSTRAINTS: Constraints = { maxFalseAccept: 0.02, maxFalseReject: 0.1, minCoverage: 0.05, maxMisgrade: 0.1 };
 
 const range = (a: number, b: number, step: number) => Array.from({ length: Math.round((b - a) / step) + 1 }, (_, i) => Math.round((a + i * step) * 100) / 100);
 
@@ -149,9 +154,19 @@ export async function sweep(items: readonly CalibrationItem[], table: ScoreTable
         if (missed >= covered) continue;
         all.push(await evaluate(items, table, { covered, missed, contradiction }));
       }
-  const minCoverage = constraints.minCoverage ?? 0.1;
-  const ok = (m: Metrics) => m.falseAccept <= constraints.maxFalseAccept && m.falseReject <= constraints.maxFalseReject && m.coverage >= minCoverage;
-  const feasible = all.filter(ok).sort((a, b) => b.coverage - a.coverage || a.misgrade - b.misgrade || b.cfg.covered - a.cfg.covered || a.cfg.missed - b.cfg.missed);
+  // Confirm-only mode: no "missed" threshold, since it never issues a negative verdict.
+  for (const covered of range(0.1, 0.95, 0.05))
+    for (const contradiction of [0.3, 0.5, 0.7, 0.9, 2])
+      all.push(await evaluate(items, table, { covered, missed: 0, contradiction, confirmOnly: true }));
+  const minCoverage = constraints.minCoverage ?? 0.05;
+  const maxMisgrade = constraints.maxMisgrade ?? 0.1;
+  const ok = (m: Metrics) =>
+    m.falseAccept <= constraints.maxFalseAccept && m.falseReject <= constraints.maxFalseReject && m.coverage >= minCoverage && m.misgrade <= maxMisgrade;
+  const feasible = all.filter(ok).sort(
+    (a, b) =>
+      b.coverage - a.coverage || a.misgrade - b.misgrade || b.cfg.covered - a.cfg.covered ||
+      a.cfg.contradiction - b.cfg.contradiction || a.cfg.missed - b.cfg.missed,
+  );
   const closest = feasible.length ? [] : [...all].sort((a, b) => a.falseAccept - b.falseAccept || b.coverage - a.coverage).slice(0, 3);
   return { all, feasible, best: feasible[0] ?? null, closest };
 }
@@ -190,9 +205,17 @@ export function pointSeparation(items: readonly CalibrationItem[], table: ScoreT
 /* ---------- report ---------- */
 
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
+/** Wilson 95% upper bound on an error rate: what the data cannot rule out. */
+export const wilsonUpper = (k: number, n: number): number => {
+  if (n === 0) return 1;
+  const z = 1.96, p = k / n, d = 1 + (z * z) / n;
+  return (p + (z * z) / (2 * n) + z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
+};
+
 const fmt = (m: Metrics) =>
-  `covered>=${m.cfg.covered} missed<${m.cfg.missed} contradiction>=${m.cfg.contradiction > 1 ? "off" : m.cfg.contradiction}  ` +
-  `settled ${pct(m.coverage)} (${m.decided}/${m.n})  false-accept ${pct(m.falseAccept)} (${m.falseAcceptCount}/${m.nonCorrect})  ` +
+  `${m.cfg.confirmOnly ? "confirm-only: " : ""}covered>=${m.cfg.covered}${m.cfg.confirmOnly ? "" : ` missed<${m.cfg.missed}`} contradiction>=${m.cfg.contradiction > 1 ? "off" : m.cfg.contradiction}  ` +
+  `settled ${pct(m.coverage)} (${m.decided}/${m.n})  confirms ${pct(m.recall)} of correct answers  ` +
+  `false-accept ${pct(m.falseAccept)} (${m.falseAcceptCount}/${m.nonCorrect}, could be up to ${pct(wilsonUpper(m.falseAcceptCount, m.nonCorrect))})  ` +
   `false-reject ${pct(m.falseReject)} (${m.falseRejectCount}/${m.correct})  misgraded ${pct(m.misgrade)}`;
 
 export function formatReport(items: readonly CalibrationItem[], table: ScoreTable, result: SweepResult, constraints: Constraints, label = ""): string {
@@ -205,10 +228,11 @@ export function formatReport(items: readonly CalibrationItem[], table: ScoreTabl
     `per-point support AUC: ${sep.supportAuc.toFixed(3)} (0.5 = chance)  mean support covered ${sep.meanSupportCovered.toFixed(2)} vs uncovered ${sep.meanSupportUncovered.toFixed(2)}`,
     `contradiction AUC (uncovered vs covered points): ${sep.contradictionAuc.toFixed(3)}`,
     ...(Object.keys(sep.components).length ? [`component AUC (covered vs uncovered): ${Object.entries(sep.components).map(([k, v]) => `${k} ${v.toFixed(3)}`).join(", ")}`] : []),
-    `constraints: false-accept <= ${pct(constraints.maxFalseAccept)}, false-reject <= ${pct(constraints.maxFalseReject)}, settled locally >= ${pct(constraints.minCoverage ?? 0.1)}`,
+    `constraints: false-accept <= ${pct(constraints.maxFalseAccept)}, false-reject <= ${pct(constraints.maxFalseReject)}, settled locally >= ${pct(constraints.minCoverage ?? 0.05)}, misgraded <= ${pct(constraints.maxMisgrade ?? 0.1)}`,
   ];
   if (result.best) {
     lines.push("", "best setting (most answers settled locally within the constraints):", "  " + fmt(result.best));
+    if (result.best.cfg.confirmOnly) lines.push("  mode: tier 2 only confirms correct answers; every other answer goes to tier 3 (LLM) or self-rating.");
     lines.push("next best:", ...result.feasible.slice(1, 4).map((m) => "  " + fmt(m)));
   } else {
     lines.push("", "NO setting meets the constraints. The scorer is not usable for tier 2 yet. Closest by false-accept:", ...result.closest.map((m) => "  " + fmt(m)));

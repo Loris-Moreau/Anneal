@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-  auc, createLexicalScorer, evaluate, formatReport, parseDataset, pointSeparation, scoreItems, sweep, thresholdsFile, truthVerdict,
+  auc, wilsonUpper, createLexicalScorer, evaluate, formatReport, parseDataset, pointSeparation, scoreItems, sweep, thresholdsFile, truthVerdict,
   DEFAULT_CONSTRAINTS, type ScoreTable,
 } from "../src";
 
@@ -121,5 +121,28 @@ describe("wide grid and diagnostics", () => {
   it("reports per-component AUC when the scorer records components", () => {
     const table: ScoreTable = Object.fromEntries(items.map((it) => [it.id, it.covered.map((c) => ({ support: c ? 0.8 : 0.1, contradiction: 0, detail: { similarity: c ? 0.8 : 0.5, entailment: c ? 0.8 : 0.1 } }))]));
     expect(pointSeparation(items, table).components).toEqual({ similarity: 1, entailment: 1 });
+  });
+});
+
+describe("confirm-only mode", () => {
+  /** Shaped like the real xsmall NLI: recognized points score high, but unrecognized ones score ~0 whether covered or not. */
+  const nliShaped = (): ScoreTable => {
+    const r = rng(5);
+    return Object.fromEntries(items.map((it) => [it.id, it.covered.map((c) => ({ support: c && r() > -0.6 ? 0.9 : 0.01 + Math.abs(r()) * 0.02, contradiction: 0.02 }))]));
+  };
+  it("offers a setting with no false credit when negative verdicts are unreliable", async () => {
+    const table = nliShaped();
+    const r = await sweep(items, table);
+    const confirm = r.feasible.find((m) => m.cfg.confirmOnly);
+    expect(confirm).toBeDefined();
+    expect(confirm!.falseAcceptCount).toBe(0);
+    expect(confirm!.recall).toBeGreaterThan(0.3);
+    expect(confirm!.misgrade).toBe(0);
+    expect(formatReport(items, table, { ...r, best: confirm! }, DEFAULT_CONSTRAINTS)).toMatch(/only confirms correct answers/);
+  });
+  it("reports how much a zero-error result can still hide", () => {
+    expect(wilsonUpper(0, 47)).toBeGreaterThan(0.07);
+    expect(wilsonUpper(0, 47)).toBeLessThan(0.08);
+    expect(wilsonUpper(0, 0)).toBe(1);
   });
 });

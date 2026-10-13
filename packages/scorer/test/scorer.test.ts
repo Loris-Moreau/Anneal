@@ -65,6 +65,15 @@ describe("createKeyPointScorer", () => {
     expect(new Set(nli1.classify.mock.calls[0]![0].map((p) => p.premise)).size).toBe(1);
   });
 
+  it("can prefix the question to the NLI premise", async () => {
+    const nli = fakeNli();
+    await createKeyPointScorer({ embedder, nli }, { premiseContext: true }).score("Folding increases the surface area.", kps, { prompt: "Why folds?" });
+    expect(nli.classify.mock.calls[0]![0].every((p) => p.premise.startsWith("Why folds? "))).toBe(true);
+    const plain = fakeNli();
+    await createKeyPointScorer({ embedder, nli: plain }).score("Folding increases the surface area.", kps, { prompt: "Why folds?" });
+    expect(plain.classify.mock.calls[0]![0].some((p) => p.premise.startsWith("Why folds?"))).toBe(false);
+  });
+
   it("records the raw components behind each score", async () => {
     const out = await createKeyPointScorer({ embedder, nli: fakeNli() }).score("The inner membrane is folded into cristae.", kps, { prompt: "" });
     expect(out[0]!.detail).toMatchObject({ entailment: expect.any(Number), neutral: expect.any(Number), similarity: expect.any(Number) });
