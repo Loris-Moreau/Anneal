@@ -4,769 +4,1579 @@
   "mito-cristae/full": [
    {
     "support": 0.9939648959982446,
-    "contradiction": 0.0004857710764843454
+    "contradiction": 0.0004857710764843454,
+    "detail": {
+     "similarity": 0.843810752932996,
+     "entailment": 0.9939648959982446,
+     "neutral": 0.005549332925271093
+    }
    },
    {
     "support": 0.9912001371408296,
-    "contradiction": 0.0006771450979171097
+    "contradiction": 0.0006771450979171097,
+    "detail": {
+     "similarity": 0.8446820558418291,
+     "entailment": 0.9912001371408296,
+     "neutral": 0.008122717761253445
+    }
    },
    {
     "support": 0.9806905017164498,
-    "contradiction": 0.00048697064526796366
+    "contradiction": 0.00048697064526796366,
+    "detail": {
+     "similarity": 0.8606284319343875,
+     "entailment": 0.9806905017164498,
+     "neutral": 0.01882252763828208
+    }
    }
   ],
   "mito-cristae/terse": [
    {
     "support": 0.03543290218287818,
-    "contradiction": 0.7577141259473363
+    "contradiction": 0.7577141259473363,
+    "detail": {
+     "similarity": 0.7925094461170032,
+     "entailment": 0.03543290218287818,
+     "neutral": 0.20685297186978566
+    }
    },
    {
     "support": 0.2693402585338129,
-    "contradiction": 0.052097592318171744
+    "contradiction": 0.052097592318171744,
+    "detail": {
+     "similarity": 0.802580378780297,
+     "entailment": 0.2693402585338129,
+     "neutral": 0.6785621491480154
+    }
    },
    {
     "support": 0.0009447187147237062,
-    "contradiction": 0.0009245210084642949
+    "contradiction": 0.0009245210084642949,
+    "detail": {
+     "similarity": 0.8523017780569487,
+     "entailment": 0.0009447187147237062,
+     "neutral": 0.9981307602768121
+    }
    }
   ],
   "mito-cristae/partial": [
    {
     "support": 0.9935534980697791,
-    "contradiction": 0.0007338353905879001
+    "contradiction": 0.0007338353905879001,
+    "detail": {
+     "similarity": 1,
+     "entailment": 0.9935534980697791,
+     "neutral": 0.0057126665396328175
+    }
    },
    {
     "support": 0.040313125446553105,
-    "contradiction": 0.007250937923394556
+    "contradiction": 0.007250937923394556,
+    "detail": {
+     "similarity": 0.8782785651878614,
+     "entailment": 0.040313125446553105,
+     "neutral": 0.9524359366300523
+    }
    },
    {
     "support": 0.016463273834946873,
-    "contradiction": 0.03789255920995007
+    "contradiction": 0.03789255920995007,
+    "detail": {
+     "similarity": 0.6779197616759368,
+     "entailment": 0.016463273834946873,
+     "neutral": 0.945644166955103
+    }
    }
   ],
   "mito-cristae/negated": [
    {
     "support": 0.0011634211469522394,
-    "contradiction": 0.9820182960138382
+    "contradiction": 0.9820182960138382,
+    "detail": {
+     "similarity": 0.8467970016370001,
+     "entailment": 0.0011634211469522394,
+     "neutral": 0.016818282839209605
+    }
    },
    {
     "support": 0.00044042892633233314,
-    "contradiction": 0.9985912578669794
+    "contradiction": 0.9985912578669794,
+    "detail": {
+     "similarity": 0.9033364010763077,
+     "entailment": 0.00044042892633233314,
+     "neutral": 0.0009683132066881498
+    }
    },
    {
     "support": 0.0009345729990540196,
-    "contradiction": 0.028129334543276343
+    "contradiction": 0.028129334543276343,
+    "detail": {
+     "similarity": 0.6716255697106448,
+     "entailment": 0.0009345729990540196,
+     "neutral": 0.9709360924576698
+    }
    }
   ],
   "mito-cristae/related-wrong": [
    {
     "support": 0.22300336495186537,
-    "contradiction": 0.18295977680129086
+    "contradiction": 0.18295977680129086,
+    "detail": {
+     "similarity": 0.7175916400073423,
+     "entailment": 0.22300336495186537,
+     "neutral": 0.5940368582468438
+    }
    },
    {
     "support": 0.004361932963288147,
-    "contradiction": 0.005131266448997804
+    "contradiction": 0.005131266448997804,
+    "detail": {
+     "similarity": 0.7790306073856584,
+     "entailment": 0.004361932963288147,
+     "neutral": 0.990506800587714
+    }
    },
    {
     "support": 0.00460661708683122,
-    "contradiction": 0.10612114519553428
+    "contradiction": 0.10612114519553428,
+    "detail": {
+     "similarity": 0.7076329109000364,
+     "entailment": 0.00460661708683122,
+     "neutral": 0.8892722377176345
+    }
    }
   ],
   "mito-cristae/vague": [
    {
     "support": 0.010490245940210183,
-    "contradiction": 0.9597539287316789
+    "contradiction": 0.9597539287316789,
+    "detail": {
+     "similarity": 0.6833306566487791,
+     "entailment": 0.010490245940210183,
+     "neutral": 0.029755825328110944
+    }
    },
    {
     "support": 0.018098937008925467,
-    "contradiction": 0.3509343212221867
+    "contradiction": 0.3509343212221867,
+    "detail": {
+     "similarity": 0.7167971421499028,
+     "entailment": 0.018098937008925467,
+     "neutral": 0.6309667417688878
+    }
    },
    {
     "support": 0.0020332544265962596,
-    "contradiction": 0.045946685398961004
+    "contradiction": 0.045946685398961004,
+    "detail": {
+     "similarity": 0.7002305040530484,
+     "entailment": 0.0020332544265962596,
+     "neutral": 0.9520200601744429
+    }
    }
   ],
   "light-reactions/full": [
    {
     "support": 0.0017511854613184313,
-    "contradiction": 0.0011344129902827072
+    "contradiction": 0.0011344129902827072,
+    "detail": {
+     "similarity": 0.8453679073307047,
+     "entailment": 0.0017511854613184313,
+     "neutral": 0.9971144015483988
+    }
    },
    {
     "support": 0.9900157154566306,
-    "contradiction": 0.0009178550786011658
+    "contradiction": 0.0009178550786011658,
+    "detail": {
+     "similarity": 0.765700579680882,
+     "entailment": 0.9900157154566306,
+     "neutral": 0.009066429464768332
+    }
    },
    {
     "support": 0.8456413923011309,
-    "contradiction": 0.034013925091832466
+    "contradiction": 0.034013925091832466,
+    "detail": {
+     "similarity": 0.7755797310199403,
+     "entailment": 0.8456413923011309,
+     "neutral": 0.12034468260703657
+    }
    }
   ],
   "light-reactions/partial": [
    {
     "support": 0.004264721758739034,
-    "contradiction": 0.629178678523532
+    "contradiction": 0.629178678523532,
+    "detail": {
+     "similarity": 0.760978877663064,
+     "entailment": 0.004264721758739034,
+     "neutral": 0.36655659971772886
+    }
    },
    {
     "support": 0.0003448325246194283,
-    "contradiction": 0.994993616591245
+    "contradiction": 0.994993616591245,
+    "detail": {
+     "similarity": 0.6640144767897953,
+     "entailment": 0.0003448325246194283,
+     "neutral": 0.004661550884135537
+    }
    },
    {
     "support": 0.9903483962395222,
-    "contradiction": 0.000748927398000151
+    "contradiction": 0.000748927398000151,
+    "detail": {
+     "similarity": 0.8943064976773636,
+     "entailment": 0.9903483962395222,
+     "neutral": 0.008902676362477569
+    }
    }
   ],
   "light-reactions/partial-2": [
    {
     "support": 0.002612474913825794,
-    "contradiction": 0.0017520696811429172
+    "contradiction": 0.0017520696811429172,
+    "detail": {
+     "similarity": 0.8966548717322195,
+     "entailment": 0.002612474913825794,
+     "neutral": 0.9956354554050312
+    }
    },
    {
     "support": 0.8876845799372078,
-    "contradiction": 0.0036080274909378444
+    "contradiction": 0.0036080274909378444,
+    "detail": {
+     "similarity": 0.8352506361868037,
+     "entailment": 0.8876845799372078,
+     "neutral": 0.10870739257185434
+    }
    },
    {
     "support": 0.0041689205768293425,
-    "contradiction": 0.022261257484149324
+    "contradiction": 0.022261257484149324,
+    "detail": {
+     "similarity": 0.7368389116489762,
+     "entailment": 0.0041689205768293425,
+     "neutral": 0.9735698219390213
+    }
    }
   ],
   "light-reactions/wrong-place": [
    {
     "support": 0.005447189171167199,
-    "contradiction": 0.539769652705214
+    "contradiction": 0.539769652705214,
+    "detail": {
+     "similarity": 0.7348914263211306,
+     "entailment": 0.005447189171167199,
+     "neutral": 0.4547831581236188
+    }
    },
    {
     "support": 0.0013915702596751368,
-    "contradiction": 0.9841713972497796
+    "contradiction": 0.9841713972497796,
+    "detail": {
+     "similarity": 0.6116331293779989,
+     "entailment": 0.0013915702596751368,
+     "neutral": 0.014437032490545204
+    }
    },
    {
     "support": 0.006005235980813413,
-    "contradiction": 0.40573785379626387
+    "contradiction": 0.40573785379626387,
+    "detail": {
+     "similarity": 0.7063542627828489,
+     "entailment": 0.006005235980813413,
+     "neutral": 0.5882569102229227
+    }
    }
   ],
   "light-reactions/negated": [
    {
     "support": 0.00238258072241032,
-    "contradiction": 0.031728870893764485
+    "contradiction": 0.031728870893764485,
+    "detail": {
+     "similarity": 0.7229390608313694,
+     "entailment": 0.00238258072241032,
+     "neutral": 0.9658885483838253
+    }
    },
    {
     "support": 0.001652249173409257,
-    "contradiction": 0.9831961621638191
+    "contradiction": 0.9831961621638191,
+    "detail": {
+     "similarity": 0.6903050918091338,
+     "entailment": 0.001652249173409257,
+     "neutral": 0.015151588662771786
+    }
    },
    {
     "support": 0.010384101624593576,
-    "contradiction": 0.9056956896456944
+    "contradiction": 0.9056956896456944,
+    "detail": {
+     "similarity": 0.7648955009512101,
+     "entailment": 0.010384101624593576,
+     "neutral": 0.0839202087297121
+    }
    }
   ],
   "light-reactions/vague": [
    {
     "support": 0.02254374248142815,
-    "contradiction": 0.03416294905109954
+    "contradiction": 0.03416294905109954,
+    "detail": {
+     "similarity": 0.7887470093745929,
+     "entailment": 0.02254374248142815,
+     "neutral": 0.9432933084674724
+    }
    },
    {
     "support": 0.001550045023968771,
-    "contradiction": 0.9867287420731582
+    "contradiction": 0.9867287420731582,
+    "detail": {
+     "similarity": 0.6529188893347146,
+     "entailment": 0.001550045023968771,
+     "neutral": 0.01172121290287297
+    }
    },
    {
     "support": 0.013275913409723138,
-    "contradiction": 0.016520144141053336
+    "contradiction": 0.016520144141053336,
+    "detail": {
+     "similarity": 0.6763966395832686,
+     "entailment": 0.013275913409723138,
+     "neutral": 0.9702039424492235
+    }
    }
   ],
   "dna-lagging/full": [
    {
     "support": 0.9432287595379835,
-    "contradiction": 0.010788893894469324
+    "contradiction": 0.010788893894469324,
+    "detail": {
+     "similarity": 0.8037988370792802,
+     "entailment": 0.9432287595379835,
+     "neutral": 0.04598234656754734
+    }
    },
    {
     "support": 0.9812560416560651,
-    "contradiction": 0.0024894156514626005
+    "contradiction": 0.0024894156514626005,
+    "detail": {
+     "similarity": 0.7525315725824461,
+     "entailment": 0.9812560416560651,
+     "neutral": 0.016254542692472413
+    }
    },
    {
     "support": 0.850782699417162,
-    "contradiction": 0.013383874446092757
+    "contradiction": 0.013383874446092757,
+    "detail": {
+     "similarity": 0.6330744892621126,
+     "entailment": 0.850782699417162,
+     "neutral": 0.13583342613674518
+    }
    }
   ],
   "dna-lagging/partial": [
    {
     "support": 0.8724773884555235,
-    "contradiction": 0.0016113178655708447
+    "contradiction": 0.0016113178655708447,
+    "detail": {
+     "similarity": 0.8148984803248309,
+     "entailment": 0.8724773884555235,
+     "neutral": 0.12591129367890572
+    }
    },
    {
     "support": 0.0013334785544894911,
-    "contradiction": 0.015412091018664328
+    "contradiction": 0.015412091018664328,
+    "detail": {
+     "similarity": 0.6325977870901538,
+     "entailment": 0.0013334785544894911,
+     "neutral": 0.9832544304268461
+    }
    },
    {
     "support": 0.08475893134530858,
-    "contradiction": 0.1204672051213368
+    "contradiction": 0.1204672051213368,
+    "detail": {
+     "similarity": 0.5662049995519568,
+     "entailment": 0.08475893134530858,
+     "neutral": 0.7947738635333547
+    }
    }
   ],
   "dna-lagging/partial-2": [
    {
     "support": 0.007349298062829893,
-    "contradiction": 0.9025459755104971
+    "contradiction": 0.9025459755104971,
+    "detail": {
+     "similarity": 0.6190618927595626,
+     "entailment": 0.007349298062829893,
+     "neutral": 0.09010472642667296
+    }
    },
    {
     "support": 0.09260666408697152,
-    "contradiction": 0.09770848062787367
+    "contradiction": 0.09770848062787367,
+    "detail": {
+     "similarity": 0.7386327228418446,
+     "entailment": 0.09260666408697152,
+     "neutral": 0.8096848552851549
+    }
    },
    {
     "support": 0.9938869378956681,
-    "contradiction": 0.0013484167008347013
+    "contradiction": 0.0013484167008347013,
+    "detail": {
+     "similarity": 0.8575320557495147,
+     "entailment": 0.9938869378956681,
+     "neutral": 0.004764645403497248
+    }
    }
   ],
   "dna-lagging/negated": [
    {
     "support": 0.00021253554167873948,
-    "contradiction": 0.9931869201371399
+    "contradiction": 0.9931869201371399,
+    "detail": {
+     "similarity": 0.8560989512842474,
+     "entailment": 0.00021253554167873948,
+     "neutral": 0.006600544321181274
+    }
    },
    {
     "support": 0.0009889250436686719,
-    "contradiction": 0.10393719453113216
+    "contradiction": 0.10393719453113216,
+    "detail": {
+     "similarity": 0.5387785162271653,
+     "entailment": 0.0009889250436686719,
+     "neutral": 0.8950738804251991
+    }
    },
    {
     "support": 0.5402801807817607,
-    "contradiction": 0.1512781810472253
+    "contradiction": 0.1512781810472253,
+    "detail": {
+     "similarity": 0.6023474349128474,
+     "entailment": 0.5402801807817607,
+     "neutral": 0.308441638171014
+    }
    }
   ],
   "dna-lagging/related-wrong": [
    {
     "support": 0.028400968510562685,
-    "contradiction": 0.05423022597665412
+    "contradiction": 0.05423022597665412,
+    "detail": {
+     "similarity": 0.7329920934276263,
+     "entailment": 0.028400968510562685,
+     "neutral": 0.9173688055127831
+    }
    },
    {
     "support": 0.0007598567565330326,
-    "contradiction": 0.011594050094974767
+    "contradiction": 0.011594050094974767,
+    "detail": {
+     "similarity": 0.6434602437079097,
+     "entailment": 0.0007598567565330326,
+     "neutral": 0.9876460931484923
+    }
    },
    {
     "support": 0.1255317574528757,
-    "contradiction": 0.6885561188396733
+    "contradiction": 0.6885561188396733,
+    "detail": {
+     "similarity": 0.6552857996374031,
+     "entailment": 0.1255317574528757,
+     "neutral": 0.18591212370745097
+    }
    }
   ],
   "dna-lagging/vague": [
    {
     "support": 0.03014300407330996,
-    "contradiction": 0.8361190597688375
+    "contradiction": 0.8361190597688375,
+    "detail": {
+     "similarity": 0.43063416616532946,
+     "entailment": 0.03014300407330996,
+     "neutral": 0.1337379361578526
+    }
    },
    {
     "support": 0.005876890878538439,
-    "contradiction": 0.06721503112986524
+    "contradiction": 0.06721503112986524,
+    "detail": {
+     "similarity": 0.39656564482034373,
+     "entailment": 0.005876890878538439,
+     "neutral": 0.9269080779915964
+    }
    },
    {
     "support": 0.02444623641953255,
-    "contradiction": 0.0307964141074834
+    "contradiction": 0.0307964141074834,
+    "detail": {
+     "similarity": 0.4538556486584567,
+     "entailment": 0.02444623641953255,
+     "neutral": 0.9447573494729841
+    }
    }
   ],
   "osmosis/full": [
    {
     "support": 0.9874737575624669,
-    "contradiction": 0.0015638159978105751
+    "contradiction": 0.0015638159978105751,
+    "detail": {
+     "similarity": 0.8989942346834338,
+     "entailment": 0.9874737575624669,
+     "neutral": 0.010962426439722665
+    }
    },
    {
     "support": 0.2993129109420068,
-    "contradiction": 0.016225189296276712
+    "contradiction": 0.016225189296276712,
+    "detail": {
+     "similarity": 0.7642310171162916,
+     "entailment": 0.2993129109420068,
+     "neutral": 0.6844618997617165
+    }
    }
   ],
   "osmosis/terse": [
    {
     "support": 0.02844680106179723,
-    "contradiction": 0.018493586270970024
+    "contradiction": 0.018493586270970024,
+    "detail": {
+     "similarity": 0.8514971188273996,
+     "entailment": 0.02844680106179723,
+     "neutral": 0.9530596126672328
+    }
    },
    {
     "support": 0.981118009602945,
-    "contradiction": 0.00039153127194721906
+    "contradiction": 0.00039153127194721906,
+    "detail": {
+     "similarity": 0.7093835501489011,
+     "entailment": 0.981118009602945,
+     "neutral": 0.01849045912510774
+    }
    }
   ],
   "osmosis/partial": [
    {
     "support": 0.052184092924981065,
-    "contradiction": 0.002180736148096121
+    "contradiction": 0.002180736148096121,
+    "detail": {
+     "similarity": 0.9636753609069523,
+     "entailment": 0.052184092924981065,
+     "neutral": 0.945635170926923
+    }
    },
    {
     "support": 0.008913346926142885,
-    "contradiction": 0.005624844002797028
+    "contradiction": 0.005624844002797028,
+    "detail": {
+     "similarity": 0.7295354321546699,
+     "entailment": 0.008913346926142885,
+     "neutral": 0.9854618090710601
+    }
    }
   ],
   "osmosis/reversed": [
    {
     "support": 0.012528784407367365,
-    "contradiction": 0.01506939968822537
+    "contradiction": 0.01506939968822537,
+    "detail": {
+     "similarity": 0.8797562740180178,
+     "entailment": 0.012528784407367365,
+     "neutral": 0.9724018159044072
+    }
    },
    {
     "support": 0.0008761267965578931,
-    "contradiction": 0.9949029994708968
+    "contradiction": 0.9949029994708968,
+    "detail": {
+     "similarity": 0.8716759638556665,
+     "entailment": 0.0008761267965578931,
+     "neutral": 0.004220873732545298
+    }
    }
   ],
   "osmosis/related-wrong": [
    {
     "support": 0.04419298464188686,
-    "contradiction": 0.8051176106223827
+    "contradiction": 0.8051176106223827,
+    "detail": {
+     "similarity": 0.8851071726312922,
+     "entailment": 0.04419298464188686,
+     "neutral": 0.1506894047357303
+    }
    },
    {
     "support": 0.022673038178790367,
-    "contradiction": 0.0226282289397215
+    "contradiction": 0.0226282289397215,
+    "detail": {
+     "similarity": 0.7970529421514078,
+     "entailment": 0.022673038178790367,
+     "neutral": 0.954698732881488
+    }
    }
   ],
   "osmosis/vague": [
    {
     "support": 0.07264840589979349,
-    "contradiction": 0.159347790948504
+    "contradiction": 0.159347790948504,
+    "detail": {
+     "similarity": 0.6694713128884332,
+     "entailment": 0.07264840589979349,
+     "neutral": 0.7680038031517026
+    }
    },
    {
     "support": 0.01633944694103604,
-    "contradiction": 0.018730081734321495
+    "contradiction": 0.018730081734321495,
+    "detail": {
+     "similarity": 0.6794432971157208,
+     "entailment": 0.01633944694103604,
+     "neutral": 0.9649304713246424
+    }
    }
   ],
   "newton-2/full": [
    {
     "support": 0.8829069802773235,
-    "contradiction": 0.02051846121226116
+    "contradiction": 0.02051846121226116,
+    "detail": {
+     "similarity": 0.8427266125400923,
+     "entailment": 0.8829069802773235,
+     "neutral": 0.09657455851041542
+    }
    },
    {
     "support": 0.015884911015847304,
-    "contradiction": 0.9560947283457071
+    "contradiction": 0.9560947283457071,
+    "detail": {
+     "similarity": 0.7889496676790791,
+     "entailment": 0.015884911015847304,
+     "neutral": 0.028020360638445537
+    }
    },
    {
     "support": 0.8351536280689629,
-    "contradiction": 0.08908983318128712
+    "contradiction": 0.08908983318128712,
+    "detail": {
+     "similarity": 0.8213096525742555,
+     "entailment": 0.8351536280689629,
+     "neutral": 0.07575653874975001
+    }
    }
   ],
   "newton-2/terse": [
    {
     "support": 0.19352783349699806,
-    "contradiction": 0.09004324587648029
+    "contradiction": 0.09004324587648029,
+    "detail": {
+     "similarity": 0.6692949152967813,
+     "entailment": 0.19352783349699806,
+     "neutral": 0.7164289206265217
+    }
    },
    {
     "support": 0.07424374854151344,
-    "contradiction": 0.6078511747480063
+    "contradiction": 0.6078511747480063,
+    "detail": {
+     "similarity": 0.6328493965797366,
+     "entailment": 0.07424374854151344,
+     "neutral": 0.3179050767104803
+    }
    },
    {
     "support": 0.45179815344523744,
-    "contradiction": 0.09387755873265842
+    "contradiction": 0.09387755873265842,
+    "detail": {
+     "similarity": 0.682412297796053,
+     "entailment": 0.45179815344523744,
+     "neutral": 0.4543242878221042
+    }
    }
   ],
   "newton-2/partial": [
    {
     "support": 0.7566187068556962,
-    "contradiction": 0.03450871837862351
+    "contradiction": 0.03450871837862351,
+    "detail": {
+     "similarity": 0.8934360852481886,
+     "entailment": 0.7566187068556962,
+     "neutral": 0.20887257476568025
+    }
    },
    {
     "support": 0.0019983155507704215,
-    "contradiction": 0.9626759672554471
+    "contradiction": 0.9626759672554471,
+    "detail": {
+     "similarity": 0.8479934860539484,
+     "entailment": 0.0019983155507704215,
+     "neutral": 0.03532571719378243
+    }
    },
    {
     "support": 0.44336807772719766,
-    "contradiction": 0.052096338858039964
+    "contradiction": 0.052096338858039964,
+    "detail": {
+     "similarity": 0.8613993169235048,
+     "entailment": 0.44336807772719766,
+     "neutral": 0.5045355834147623
+    }
    }
   ],
   "newton-2/reversed": [
    {
     "support": 0.130717483714583,
-    "contradiction": 0.059863867707112224
+    "contradiction": 0.059863867707112224,
+    "detail": {
+     "similarity": 0.833837186604063,
+     "entailment": 0.130717483714583,
+     "neutral": 0.8094186485783047
+    }
    },
    {
     "support": 0.0017343338244603988,
-    "contradiction": 0.969421408600845
+    "contradiction": 0.969421408600845,
+    "detail": {
+     "similarity": 0.8079455068495953,
+     "entailment": 0.0017343338244603988,
+     "neutral": 0.028844257574694443
+    }
    },
    {
     "support": 0.1885110518410302,
-    "contradiction": 0.036958812409308095
+    "contradiction": 0.036958812409308095,
+    "detail": {
+     "similarity": 0.839878596582307,
+     "entailment": 0.1885110518410302,
+     "neutral": 0.7745301357496618
+    }
    }
   ],
   "newton-2/related-wrong": [
    {
     "support": 0.27401005472298046,
-    "contradiction": 0.661355013341343
+    "contradiction": 0.661355013341343,
+    "detail": {
+     "similarity": 0.9323259810699952,
+     "entailment": 0.27401005472298046,
+     "neutral": 0.06463493193567656
+    }
    },
    {
     "support": 0.0007685824411842163,
-    "contradiction": 0.9946898703685242
+    "contradiction": 0.9946898703685242,
+    "detail": {
+     "similarity": 0.9479517904923764,
+     "entailment": 0.0007685824411842163,
+     "neutral": 0.004541547190291699
+    }
    },
    {
     "support": 0.18394709419081925,
-    "contradiction": 0.49095506121381105
+    "contradiction": 0.49095506121381105,
+    "detail": {
+     "similarity": 0.87283031437922,
+     "entailment": 0.18394709419081925,
+     "neutral": 0.32509784459536967
+    }
    }
   ],
   "newton-2/vague": [
    {
     "support": 0.0427961676634622,
-    "contradiction": 0.8136410527141057
+    "contradiction": 0.8136410527141057,
+    "detail": {
+     "similarity": 0.5901265180819439,
+     "entailment": 0.0427961676634622,
+     "neutral": 0.14356277962243216
+    }
    },
    {
     "support": 0.19677941284756517,
-    "contradiction": 0.15996387209281107
+    "contradiction": 0.15996387209281107,
+    "detail": {
+     "similarity": 0.5544088238925717,
+     "entailment": 0.19677941284756517,
+     "neutral": 0.6432567150596238
+    }
    },
    {
     "support": 0.04985992986855774,
-    "contradiction": 0.8632592773846468
+    "contradiction": 0.8632592773846468,
+    "detail": {
+     "similarity": 0.6374738796717293,
+     "entailment": 0.04985992986855774,
+     "neutral": 0.0868807927467955
+    }
    }
   ],
   "tcp-udp/full": [
    {
     "support": 0.994961158137559,
-    "contradiction": 0.0008321886537951048
+    "contradiction": 0.0008321886537951048,
+    "detail": {
+     "similarity": 0.9238998793728567,
+     "entailment": 0.994961158137559,
+     "neutral": 0.004659877329183099
+    }
    },
    {
     "support": 0.5865414430621557,
-    "contradiction": 0.3811854188891695
+    "contradiction": 0.3811854188891695,
+    "detail": {
+     "similarity": 0.8315715968804361,
+     "entailment": 0.5865414430621557,
+     "neutral": 0.03227313804867473
+    }
    },
    {
     "support": 0.9944339280547446,
-    "contradiction": 0.024183287828484196
+    "contradiction": 0.024183287828484196,
+    "detail": {
+     "similarity": 0.8839506285345756,
+     "entailment": 0.9944339280547446,
+     "neutral": 0.005140298173352419
+    }
    }
   ],
   "tcp-udp/terse": [
    {
     "support": 0.015179069601765932,
-    "contradiction": 0.0016337443566847244
+    "contradiction": 0.0016337443566847244,
+    "detail": {
+     "similarity": 0.8518440748620277,
+     "entailment": 0.015179069601765932,
+     "neutral": 0.9831871860415494
+    }
    },
    {
     "support": 0.002424907356284734,
-    "contradiction": 0.03137564389662539
+    "contradiction": 0.03137564389662539,
+    "detail": {
+     "similarity": 0.6532948123728411,
+     "entailment": 0.002424907356284734,
+     "neutral": 0.9661994487470897
+    }
    },
    {
     "support": 0.003587759005032503,
-    "contradiction": 0.0009860000074597799
+    "contradiction": 0.0009860000074597799,
+    "detail": {
+     "similarity": 0.838715681570885,
+     "entailment": 0.003587759005032503,
+     "neutral": 0.9954262409875078
+    }
    }
   ],
   "tcp-udp/partial": [
    {
     "support": 0.2339438839440396,
-    "contradiction": 0.0025372501288444716
+    "contradiction": 0.0025372501288444716,
+    "detail": {
+     "similarity": 0.8800404872762786,
+     "entailment": 0.2339438839440396,
+     "neutral": 0.763518865927116
+    }
    },
    {
     "support": 0.002054597934236181,
-    "contradiction": 0.6242091252546745
+    "contradiction": 0.6242091252546745,
+    "detail": {
+     "similarity": 0.6192625534153854,
+     "entailment": 0.002054597934236181,
+     "neutral": 0.37373627681108923
+    }
    },
    {
     "support": 0.001962970945377102,
-    "contradiction": 0.022501636713555997
+    "contradiction": 0.022501636713555997,
+    "detail": {
+     "similarity": 0.7181641654897928,
+     "entailment": 0.001962970945377102,
+     "neutral": 0.975535392341067
+    }
    }
   ],
   "tcp-udp/partial-2": [
    {
     "support": 0.0006646780816277187,
-    "contradiction": 0.9928887471739459
+    "contradiction": 0.9928887471739459,
+    "detail": {
+     "similarity": 0.7023650031586721,
+     "entailment": 0.0006646780816277187,
+     "neutral": 0.006446574744426303
+    }
    },
    {
     "support": 0.010363309711245196,
-    "contradiction": 0.021083858095803303
+    "contradiction": 0.021083858095803303,
+    "detail": {
+     "similarity": 0.7488022422362642,
+     "entailment": 0.010363309711245196,
+     "neutral": 0.9685528321929515
+    }
    },
    {
     "support": 0.005181763669465047,
-    "contradiction": 0.0004317465349041442
+    "contradiction": 0.0004317465349041442,
+    "detail": {
+     "similarity": 0.8290703790989717,
+     "entailment": 0.005181763669465047,
+     "neutral": 0.9943864897956307
+    }
    }
   ],
   "tcp-udp/swapped": [
    {
     "support": 0.0008155670852789521,
-    "contradiction": 0.9978127462535092
+    "contradiction": 0.9978127462535092,
+    "detail": {
+     "similarity": 0.8366791803549504,
+     "entailment": 0.0008155670852789521,
+     "neutral": 0.0013716866612118648
+    }
    },
    {
     "support": 0.0004688335469301813,
-    "contradiction": 0.9969095712594045
+    "contradiction": 0.9969095712594045,
+    "detail": {
+     "similarity": 0.782880832657846,
+     "entailment": 0.0004688335469301813,
+     "neutral": 0.0026215951936651855
+    }
    },
    {
     "support": 0.0016258331338949036,
-    "contradiction": 0.0009531149998106352
+    "contradiction": 0.0009531149998106352,
+    "detail": {
+     "similarity": 0.7516793551754265,
+     "entailment": 0.0016258331338949036,
+     "neutral": 0.9974210518662944
+    }
    }
   ],
   "tcp-udp/vague": [
    {
     "support": 0.04121953691199864,
-    "contradiction": 0.6825636327068197
+    "contradiction": 0.6825636327068197,
+    "detail": {
+     "similarity": 0.5543837652094753,
+     "entailment": 0.04121953691199864,
+     "neutral": 0.27621683038118156
+    }
    },
    {
     "support": 0.0007756711793018001,
-    "contradiction": 0.9826634798863453
+    "contradiction": 0.9826634798863453,
+    "detail": {
+     "similarity": 0.38337091003961843,
+     "entailment": 0.0007756711793018001,
+     "neutral": 0.016560848934352744
+    }
    },
    {
     "support": 0.0013390837760566027,
-    "contradiction": 0.0018965174769958427
+    "contradiction": 0.0018965174769958427,
+    "detail": {
+     "similarity": 0.5983494824427853,
+     "entailment": 0.0013390837760566027,
+     "neutral": 0.9967643987469477
+    }
    }
   ],
   "hash-collision/full": [
    {
     "support": 0.40954319758386276,
-    "contradiction": 0.5267712563130457
+    "contradiction": 0.5267712563130457,
+    "detail": {
+     "similarity": 0.877819386908013,
+     "entailment": 0.40954319758386276,
+     "neutral": 0.1209908985250567
+    }
    },
    {
     "support": 0.3314654544907837,
-    "contradiction": 0.44823433373942956
+    "contradiction": 0.44823433373942956,
+    "detail": {
+     "similarity": 0.7408253082969876,
+     "entailment": 0.3314654544907837,
+     "neutral": 0.5821951390278809
+    }
    },
    {
     "support": 0.9687971688208405,
-    "contradiction": 0.009161113562225579
+    "contradiction": 0.009161113562225579,
+    "detail": {
+     "similarity": 0.8286214999868233,
+     "entailment": 0.9687971688208405,
+     "neutral": 0.02925848948588908
+    }
    }
   ],
   "hash-collision/partial": [
    {
     "support": 0.03165511888081949,
-    "contradiction": 0.2567884144003764
+    "contradiction": 0.2567884144003764,
+    "detail": {
+     "similarity": 0.7976345469686829,
+     "entailment": 0.03165511888081949,
+     "neutral": 0.7115564667188041
+    }
    },
    {
     "support": 0.05409946698513117,
-    "contradiction": 0.3868217047023205
+    "contradiction": 0.3868217047023205,
+    "detail": {
+     "similarity": 0.7525323407939603,
+     "entailment": 0.05409946698513117,
+     "neutral": 0.5590788283125483
+    }
    },
    {
     "support": 0.015430706280180966,
-    "contradiction": 0.2647838963307787
+    "contradiction": 0.2647838963307787,
+    "detail": {
+     "similarity": 0.6547891248650195,
+     "entailment": 0.015430706280180966,
+     "neutral": 0.7197853973890402
+    }
    }
   ],
   "hash-collision/partial-2": [
    {
     "support": 0.2398978573513183,
-    "contradiction": 0.16673746441094403
+    "contradiction": 0.16673746441094403,
+    "detail": {
+     "similarity": 0.7983022048037294,
+     "entailment": 0.2398978573513183,
+     "neutral": 0.5933646782377376
+    }
    },
    {
     "support": 0.025917001084119845,
-    "contradiction": 0.8232811401601254
+    "contradiction": 0.8232811401601254,
+    "detail": {
+     "similarity": 0.6947582206560016,
+     "entailment": 0.025917001084119845,
+     "neutral": 0.15080185875575486
+    }
    },
    {
     "support": 0.894413312529392,
-    "contradiction": 0.0183803353874498
+    "contradiction": 0.0183803353874498,
+    "detail": {
+     "similarity": 0.7996858882371956,
+     "entailment": 0.894413312529392,
+     "neutral": 0.08720635208315826
+    }
    }
   ],
   "hash-collision/wrong": [
    {
     "support": 0.0024553580265098906,
-    "contradiction": 0.9640362228228159
+    "contradiction": 0.9640362228228159,
+    "detail": {
+     "similarity": 0.7942119346412778,
+     "entailment": 0.0024553580265098906,
+     "neutral": 0.03350841915067431
+    }
    },
    {
     "support": 0.0011977922258403697,
-    "contradiction": 0.9185804892835185
+    "contradiction": 0.9185804892835185,
+    "detail": {
+     "similarity": 0.6428915507630858,
+     "entailment": 0.0011977922258403697,
+     "neutral": 0.08022171849064122
+    }
    },
    {
     "support": 0.002408178133950376,
-    "contradiction": 0.3304541307339855
+    "contradiction": 0.3304541307339855,
+    "detail": {
+     "similarity": 0.6001676630476831,
+     "entailment": 0.002408178133950376,
+     "neutral": 0.6671376911320642
+    }
    }
   ],
   "hash-collision/related-wrong": [
    {
     "support": 0.0042031603814797446,
-    "contradiction": 0.9607812466486074
+    "contradiction": 0.9607812466486074,
+    "detail": {
+     "similarity": 0.8967269900715474,
+     "entailment": 0.0042031603814797446,
+     "neutral": 0.03501559296991272
+    }
    },
    {
     "support": 0.03628262104719502,
-    "contradiction": 0.1392736269116078
+    "contradiction": 0.1392736269116078,
+    "detail": {
+     "similarity": 0.6751096348456673,
+     "entailment": 0.03628262104719502,
+     "neutral": 0.8244437520411972
+    }
    },
    {
     "support": 0.0017707854771262588,
-    "contradiction": 0.9735813382284237
+    "contradiction": 0.9735813382284237,
+    "detail": {
+     "similarity": 0.6058933994301857,
+     "entailment": 0.0017707854771262588,
+     "neutral": 0.02464787629444989
+    }
    }
   ],
   "hash-collision/vague": [
    {
     "support": 0.0026507781718798943,
-    "contradiction": 0.9062067585758643
+    "contradiction": 0.9062067585758643,
+    "detail": {
+     "similarity": 0.6704676093559344,
+     "entailment": 0.0026507781718798943,
+     "neutral": 0.0911424632522558
+    }
    },
    {
     "support": 0.005949145463730757,
-    "contradiction": 0.9379737705549073
+    "contradiction": 0.9379737705549073,
+    "detail": {
+     "similarity": 0.6856318017237379,
+     "entailment": 0.005949145463730757,
+     "neutral": 0.05607708398136203
+    }
    },
    {
     "support": 0.020092354354261006,
-    "contradiction": 0.48168341129830583
+    "contradiction": 0.48168341129830583,
+    "detail": {
+     "similarity": 0.628740758513961,
+     "entailment": 0.020092354354261006,
+     "neutral": 0.49822423434743324
+    }
    }
   ],
   "recursion-base/full": [
    {
     "support": 0.9494513077910264,
-    "contradiction": 0.01020175558711311
+    "contradiction": 0.01020175558711311,
+    "detail": {
+     "similarity": 0.8353446664540033,
+     "entailment": 0.9494513077910264,
+     "neutral": 0.04166868349699747
+    }
    },
    {
     "support": 0.8468452925301376,
-    "contradiction": 0.4338154259073799
+    "contradiction": 0.4338154259073799,
+    "detail": {
+     "similarity": 0.7114741365007333,
+     "entailment": 0.8468452925301376,
+     "neutral": 0.08332553183795503
+    }
    }
   ],
   "recursion-base/partial": [
    {
     "support": 0.02959438563173654,
-    "contradiction": 0.017254972221456246
+    "contradiction": 0.017254972221456246,
+    "detail": {
+     "similarity": 0.7035709022078723,
+     "entailment": 0.02959438563173654,
+     "neutral": 0.9531506421468071
+    }
    },
    {
     "support": 0.00044837009463969513,
-    "contradiction": 0.9805060478065866
+    "contradiction": 0.9805060478065866,
+    "detail": {
+     "similarity": 0.65454613780454,
+     "entailment": 0.00044837009463969513,
+     "neutral": 0.019045582098773838
+    }
    }
   ],
   "recursion-base/partial-2": [
    {
     "support": 0.003987043183953387,
-    "contradiction": 0.819951261365307
+    "contradiction": 0.819951261365307,
+    "detail": {
+     "similarity": 0.5355778231204327,
+     "entailment": 0.003987043183953387,
+     "neutral": 0.1760616954507396
+    }
    },
    {
     "support": 0.002932381060941883,
-    "contradiction": 0.03554679306739454
+    "contradiction": 0.03554679306739454,
+    "detail": {
+     "similarity": 0.5914309517281182,
+     "entailment": 0.002932381060941883,
+     "neutral": 0.9615208258716637
+    }
    }
   ],
   "recursion-base/negated": [
    {
     "support": 0.012295835198561499,
-    "contradiction": 0.008566892460652203
+    "contradiction": 0.008566892460652203,
+    "detail": {
+     "similarity": 0.7696842270992995,
+     "entailment": 0.012295835198561499,
+     "neutral": 0.9791372723407864
+    }
    },
    {
     "support": 0.0004367794454976192,
-    "contradiction": 0.9621471059352672
+    "contradiction": 0.9621471059352672,
+    "detail": {
+     "similarity": 0.7537408671863962,
+     "entailment": 0.0004367794454976192,
+     "neutral": 0.0374161146192352
+    }
    }
   ],
   "recursion-base/related-wrong": [
    {
     "support": 0.0188370094529212,
-    "contradiction": 0.41178766281213364
+    "contradiction": 0.41178766281213364,
+    "detail": {
+     "similarity": 0.6999233915132604,
+     "entailment": 0.0188370094529212,
+     "neutral": 0.5693753277349451
+    }
    },
    {
     "support": 0.0009052356532979637,
-    "contradiction": 0.38985744092309127
+    "contradiction": 0.38985744092309127,
+    "detail": {
+     "similarity": 0.6450338788030776,
+     "entailment": 0.0009052356532979637,
+     "neutral": 0.6092373234236108
+    }
    }
   ],
   "recursion-base/vague": [
    {
     "support": 0.005419496240665147,
-    "contradiction": 0.795154253222133
+    "contradiction": 0.795154253222133,
+    "detail": {
+     "similarity": 0.7888213477161177,
+     "entailment": 0.005419496240665147,
+     "neutral": 0.19942625053720203
+    }
    },
    {
     "support": 0.0006775293380908932,
-    "contradiction": 0.7273192763243759
+    "contradiction": 0.7273192763243759,
+    "detail": {
+     "similarity": 0.7258758562697234,
+     "entailment": 0.0006775293380908932,
+     "neutral": 0.2720031943375331
+    }
    }
   ],
   "demand-shift/full": [
    {
     "support": 0.5911351605557409,
-    "contradiction": 0.00934590723570941
+    "contradiction": 0.00934590723570941,
+    "detail": {
+     "similarity": 0.8210745304486137,
+     "entailment": 0.5911351605557409,
+     "neutral": 0.3995189322085496
+    }
    },
    {
     "support": 0.5162131692888428,
-    "contradiction": 0.045945153183969634
+    "contradiction": 0.045945153183969634,
+    "detail": {
+     "similarity": 0.7964887996026911,
+     "entailment": 0.5162131692888428,
+     "neutral": 0.4378416775271876
+    }
    }
   ],
   "demand-shift/terse": [
    {
     "support": 0.01660516039565902,
-    "contradiction": 0.002235288795472973
+    "contradiction": 0.002235288795472973,
+    "detail": {
+     "similarity": 0.8628117005831004,
+     "entailment": 0.01660516039565902,
+     "neutral": 0.9811595508088681
+    }
    },
    {
     "support": 0.01269046782931424,
-    "contradiction": 0.002400242113363748
+    "contradiction": 0.002400242113363748,
+    "detail": {
+     "similarity": 0.8581311264103526,
+     "entailment": 0.01269046782931424,
+     "neutral": 0.984909290057322
+    }
    }
   ],
   "demand-shift/partial": [
    {
     "support": 0.011671933896011583,
-    "contradiction": 0.00040197291283567224
+    "contradiction": 0.00040197291283567224,
+    "detail": {
+     "similarity": 0.9308346882392834,
+     "entailment": 0.011671933896011583,
+     "neutral": 0.9879260931911528
+    }
    },
    {
     "support": 0.11921376825297669,
-    "contradiction": 0.005203850418126594
+    "contradiction": 0.005203850418126594,
+    "detail": {
+     "similarity": 0.8676384903857255,
+     "entailment": 0.11921376825297669,
+     "neutral": 0.8755823813288968
+    }
    }
   ],
   "demand-shift/half-wrong": [
    {
     "support": 0.045313449321375966,
-    "contradiction": 0.013699165344258987
+    "contradiction": 0.013699165344258987,
+    "detail": {
+     "similarity": 0.8732614442892498,
+     "entailment": 0.045313449321375966,
+     "neutral": 0.940987385334365
+    }
    },
    {
     "support": 0.0013539176662257042,
-    "contradiction": 0.9864024481695335
+    "contradiction": 0.9864024481695335,
+    "detail": {
+     "similarity": 0.8644360958728112,
+     "entailment": 0.0013539176662257042,
+     "neutral": 0.01224363416424076
+    }
    }
   ],
   "demand-shift/reversed": [
    {
     "support": 0.0010498109038266706,
-    "contradiction": 0.9936401705607895
+    "contradiction": 0.9936401705607895,
+    "detail": {
+     "similarity": 0.7397459737940133,
+     "entailment": 0.0010498109038266706,
+     "neutral": 0.005310018535383892
+    }
    },
    {
     "support": 0.0016841870164436205,
-    "contradiction": 0.9928484908877444
+    "contradiction": 0.9928484908877444,
+    "detail": {
+     "similarity": 0.7055157412161874,
+     "entailment": 0.0016841870164436205,
+     "neutral": 0.005467322095811837
+    }
    }
   ],
   "demand-shift/vague": [
    {
     "support": 0.004636019271503541,
-    "contradiction": 0.8169206907972525
+    "contradiction": 0.8169206907972525,
+    "detail": {
+     "similarity": 0.7002847002922533,
+     "entailment": 0.004636019271503541,
+     "neutral": 0.178443289931244
+    }
    },
    {
     "support": 0.0038164698160881028,
-    "contradiction": 0.020890400162793393
+    "contradiction": 0.020890400162793393,
+    "detail": {
+     "similarity": 0.7304087721299352,
+     "entailment": 0.0038164698160881028,
+     "neutral": 0.9752931300211184
+    }
    }
   ],
   "herd-immunity/full": [
    {
     "support": 0.9739801765732798,
-    "contradiction": 0.0014453739127121153
+    "contradiction": 0.0014453739127121153,
+    "detail": {
+     "similarity": 0.7682116365383439,
+     "entailment": 0.9739801765732798,
+     "neutral": 0.024574449514007984
+    }
    },
    {
     "support": 0.9707936465820275,
-    "contradiction": 0.0014080757631523193
+    "contradiction": 0.0014080757631523193,
+    "detail": {
+     "similarity": 0.8279022498703555,
+     "entailment": 0.9707936465820275,
+     "neutral": 0.027798277654820253
+    }
    },
    {
     "support": 0.9775101501178267,
-    "contradiction": 0.000842258999039961
+    "contradiction": 0.000842258999039961,
+    "detail": {
+     "similarity": 0.8879313513790141,
+     "entailment": 0.9775101501178267,
+     "neutral": 0.02164759088313343
+    }
    }
   ],
   "herd-immunity/partial": [
    {
     "support": 0.889436337472889,
-    "contradiction": 0.007048251436123988
+    "contradiction": 0.007048251436123988,
+    "detail": {
+     "similarity": 0.807275190698352,
+     "entailment": 0.889436337472889,
+     "neutral": 0.10351541109098703
+    }
    },
    {
     "support": 0.0013175405172591273,
-    "contradiction": 0.0014894669899521247
+    "contradiction": 0.0014894669899521247,
+    "detail": {
+     "similarity": 0.6115132519779919,
+     "entailment": 0.0013175405172591273,
+     "neutral": 0.9971929924927887
+    }
    },
    {
     "support": 0.006053269973131564,
-    "contradiction": 0.025662000699705697
+    "contradiction": 0.025662000699705697,
+    "detail": {
+     "similarity": 0.7580827617751172,
+     "entailment": 0.006053269973131564,
+     "neutral": 0.9682847293271626
+    }
    }
   ],
   "herd-immunity/partial-2": [
    {
     "support": 0.05032583562645564,
-    "contradiction": 0.0210034036349223
+    "contradiction": 0.0210034036349223,
+    "detail": {
+     "similarity": 0.6678229770991719,
+     "entailment": 0.05032583562645564,
+     "neutral": 0.928670760738622
+    }
    },
    {
     "support": 0.8122496175780306,
-    "contradiction": 0.00475001081180832
+    "contradiction": 0.00475001081180832,
+    "detail": {
+     "similarity": 0.8063552326935497,
+     "entailment": 0.8122496175780306,
+     "neutral": 0.18300037161016108
+    }
    },
    {
     "support": 0.9898720001309006,
-    "contradiction": 0.0004957396065181001
+    "contradiction": 0.0004957396065181001,
+    "detail": {
+     "similarity": 0.8765810867610092,
+     "entailment": 0.9898720001309006,
+     "neutral": 0.009632260262581205
+    }
    }
   ],
   "herd-immunity/wrong": [
    {
     "support": 0.00918174534173962,
-    "contradiction": 0.0009287710430229634
+    "contradiction": 0.0009287710430229634,
+    "detail": {
+     "similarity": 0.7526117929248518,
+     "entailment": 0.00918174534173962,
+     "neutral": 0.9898894836152374
+    }
    },
    {
     "support": 0.0014496490714015872,
-    "contradiction": 0.005770016873830676
+    "contradiction": 0.005770016873830676,
+    "detail": {
+     "similarity": 0.5917261250359411,
+     "entailment": 0.0014496490714015872,
+     "neutral": 0.9927803340547676
+    }
    },
    {
     "support": 0.0019619320184424477,
-    "contradiction": 0.004446288139421953
+    "contradiction": 0.004446288139421953,
+    "detail": {
+     "similarity": 0.7741155668441748,
+     "entailment": 0.0019619320184424477,
+     "neutral": 0.9935917798421356
+    }
    }
   ],
   "herd-immunity/negated": [
    {
     "support": 0.35203139312221,
-    "contradiction": 0.0062902429063910175
+    "contradiction": 0.0062902429063910175,
+    "detail": {
+     "similarity": 0.7495678494006063,
+     "entailment": 0.35203139312221,
+     "neutral": 0.641678363971399
+    }
    },
    {
     "support": 0.0016827143961765203,
-    "contradiction": 0.9894274913284978
+    "contradiction": 0.9894274913284978,
+    "detail": {
+     "similarity": 0.642304473075303,
+     "entailment": 0.0016827143961765203,
+     "neutral": 0.008889794275325647
+    }
    },
    {
     "support": 0.004603231704809746,
-    "contradiction": 0.2531029141626504
+    "contradiction": 0.2531029141626504,
+    "detail": {
+     "similarity": 0.6676481984694006,
+     "entailment": 0.004603231704809746,
+     "neutral": 0.7422938541325398
+    }
    }
   ],
   "herd-immunity/vague": [
    {
     "support": 0.008499954565050417,
-    "contradiction": 0.004532630734030515
+    "contradiction": 0.004532630734030515,
+    "detail": {
+     "similarity": 0.6552062526590916,
+     "entailment": 0.008499954565050417,
+     "neutral": 0.986967414700919
+    }
    },
    {
     "support": 0.0024872408616653636,
-    "contradiction": 0.01389398188090694
+    "contradiction": 0.01389398188090694,
+    "detail": {
+     "similarity": 0.5168588447303105,
+     "entailment": 0.0024872408616653636,
+     "neutral": 0.9836187772574277
+    }
    },
    {
     "support": 0.0014577054772948398,
-    "contradiction": 0.00523060878580912
+    "contradiction": 0.00523060878580912,
+    "detail": {
+     "similarity": 0.6542523433246249,
+     "entailment": 0.0014577054772948398,
+     "neutral": 0.9933116857368961
+    }
    }
   ]
  }

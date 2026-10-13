@@ -2,12 +2,13 @@ scorer: local (default embedder + default NLI)
 items: 60  sources: {"authored":60}  human verdicts: {"correct":13,"partial":19,"incorrect":28}
 per-point support AUC: 0.868 (0.5 = chance)  mean support covered 0.52 vs uncovered 0.04
 contradiction AUC (uncovered vs covered points): 0.811
+component AUC (covered vs uncovered): similarity 0.763, entailment 0.868, neutral 0.440
 constraints: false-accept <= 2.0%, false-reject <= 10.0%, settled locally >= 10.0%
 
 NO setting meets the constraints. The scorer is not usable for tier 2 yet. Closest by false-accept:
+  covered>=0.35 missed<0.3 contradiction>=off  settled 98.3% (59/60)  false-accept 0.0% (0/47)  false-reject 46.2% (6/13)  misgraded 28.8%
+  covered>=0.4 missed<0.35 contradiction>=off  settled 98.3% (59/60)  false-accept 0.0% (0/47)  false-reject 53.8% (7/13)  misgraded 28.8%
   covered>=0.5 missed<0.45 contradiction>=off  settled 98.3% (59/60)  false-accept 0.0% (0/47)  false-reject 53.8% (7/13)  misgraded 28.8%
-  covered>=0.55 missed<0.5 contradiction>=off  settled 96.7% (58/60)  false-accept 0.0% (0/47)  false-reject 53.8% (7/13)  misgraded 29.3%
-  covered>=0.5 missed<0.4 contradiction>=off  settled 95.0% (57/60)  false-accept 0.0% (0/47)  false-reject 46.2% (6/13)  misgraded 28.1%
 
 WARNING: 60 items. With under ~200, one error moves a rate by several points: treat these thresholds as provisional.
 WARNING: no human-written answers. Authored or synthetic answers are only a smoke test; do not ship these thresholds.
