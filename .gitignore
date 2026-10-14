@@ -1,3 +1,9 @@
+# Visual Studio user specific files
+.vs/
+# Rider user specific files
+.idea/
+Folder.DotSettings.user
+
 node_modules
 dist
 *.local
