@@ -11,3 +11,4 @@ dist
 /decks
 packages/wiki/test/fixtures/live/
 /calibration/out*
+.anneal-cache

@@ -57,7 +57,32 @@ Reports per-point and per-component AUC (similarity, entailment), then sweeps ti
 
 An infeasible result exits 0 (it is a finding); add `--strict` to fail scripts. `calibrate sweep --scores calibration/out/scores.json` re-runs the threshold search without models. Add real answers to the dataset (format in `packages/scorer/src/calibrate.ts`) until you have about 200 before trusting the numbers.
 
-## Writing rubric key points (for the LLM stage)
+## LLM stage: understanding cards with rubrics
+
+`--llm` adds why/how, compare, predict, and derive cards to a deck, each with a reference answer, 2-4 rubric key points (what tier 2 scores against), and an exact source quote. One model call per concept, only for concepts that have a passage.
+
+Configure any OpenAI-compatible provider with environment variables (PowerShell):
+
+```
+$env:ANNEAL_LLM_API_KEY = "..."            # not needed for a local server
+$env:ANNEAL_LLM_MODEL = "<model id>"       # copy a current one from the provider's console: free-tier names change
+$env:ANNEAL_LLM_BASE_URL = "..."           # default: Google AI Studio's OpenAI-compatible endpoint
+$env:ANNEAL_LLM_RPM = "10"                 # stay under the provider's per-minute limit
+$env:ANNEAL_LLM_JSON_MODE = "schema"       # schema | object | none (steps down by itself if the provider rejects it)
+```
+
+Other providers: set `ANNEAL_LLM_BASE_URL` to their OpenAI-compatible URL (Groq, Mistral, a local Ollama at `http://localhost:11434/v1`). The endpoint and model ids above are not verified against live providers.
+
+```
+pnpm anneal wiki "Photosynthesis" --llm --dry-run     # prints the plan, a token estimate, and the first prompt. Sends nothing.
+pnpm anneal wiki "Photosynthesis" --llm --show        # generates (max 6 concepts, 3 cards each; see --max-concepts, --cards-per-concept)
+pnpm anneal wiki "Photosynthesis" --llm --publish     # ... then validates and copies into ../Anneal-Decks
+pnpm anneal mock-llm --port 8787                      # fake server to try the flow without a key (its cards are not real quality)
+```
+
+Cost control: results are cached in `.anneal-cache/llm` by model, prompt version, concept, and passage, so re-running costs nothing and changing a quality gate never re-calls the model. A failed concept is reported and skipped, not fatal. Every generated card must pass deterministic gates before it is kept: 2-4 key points, none starting with a pronoun (they scored 0.00 in calibration), each grounded in the passage, an exact source quote, a self-contained question that does not leak the answer. Rejected cards and reasons are in `report.json`.
+
+## Writing rubric key points
 
 Tier 2 scores each key point as an NLI hypothesis, so write them as short, standalone claims: explicit subject, no pronouns ("They occur in..." scored 0.00 against a correct answer), one fact each, and no detail a correct answer may reasonably omit ("...of the chloroplast"). 2-4 per card.
 
