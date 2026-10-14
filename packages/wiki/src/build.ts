@@ -33,13 +33,54 @@ const HISTORY = new Set(["history", "etymology", "terminology", "origins", "disc
 const PROOFS = new Set(["proof", "proofs", "derivation", "derivations"]);
 
 export const PIPELINE_VERSION = "wiki-prepass-0.1";
-const titleId = (t: string) => `wiki:${t.replace(/ /g, "_")}`;
+export const titleId = (t: string) => `wiki:${t.replace(/ /g, "_")}`;
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
+/** Sections that never feed cards: references, see also, and (by default) history and proofs. */
+export function makeBlocked(o: Pick<BuildOptions, "includeHistory" | "includeProofs">) {
+  return (s: Section) =>
+    s.path.some((h) => {
+      const k = h.toLowerCase();
+      return ALWAYS_BLOCKED.has(k) || (!o.includeHistory && HISTORY.has(k)) || (!o.includeProofs && PROOFS.has(k));
+    });
+}
+
+/**
+ * Source text for one concept of a deck built by buildDeck: the whole usable page for the main concept,
+ * or one top-level section with its subsections for a section concept. Null if the concept is unknown.
+ */
+export function conceptPassage(page: ParsedPage, conceptId: string, opts: BuildOptions & { maxWords?: number } = {}): string | null {
+  const blocked = makeBlocked(opts);
+  const mainId = titleId(page.title);
+  let secs: Section[];
+  if (conceptId === mainId) secs = page.sections.filter((s) => !blocked(s));
+  else {
+    if (!conceptId.startsWith(`${mainId}#`)) return null;
+    const anchor = conceptId.slice(mainId.length + 1);
+    const top = page.sections.find((s) => s.path.length === 1 && s.anchor === anchor);
+    if (!top) return null;
+    secs = page.sections.filter((s) => s.path[0] === top.heading && !blocked(s));
+  }
+  const parts: string[] = [];
+  for (const s of secs) {
+    if (s.id !== 0) parts.push(`## ${s.heading}`);
+    for (const p of s.paragraphs) parts.push(p.text);
+  }
+  const text = parts.join("\n\n");
+  if (!/\S/.test(text)) return null;
+  return clipWords(text, opts.maxWords ?? 1500);
+}
+
+/** Keep the first n words, preserving the original line breaks. */
+export function clipWords(text: string, n: number): string {
+  let count = 0;
+  for (const m of text.matchAll(/\S+/g)) if (++count === n) return text.slice(0, m.index! + m[0].length);
+  return text;
+}
 
 export function buildDeck(page: ParsedPage, opts: BuildOptions = {}): { deck: Deck; report: BuildReport } {
   const o = { maxCardsPerSection: 6, minSectionCards: 2, maxPrerequisites: 8, maxFormulas: 5, maxCards: 60, includeHistory: false, includeProofs: false, ...opts };
-  const blocked = (s: Section) =>
-    s.path.some((h) => ALWAYS_BLOCKED.has(h.toLowerCase()) || (!o.includeHistory && HISTORY.has(h.toLowerCase())) || (!o.includeProofs && PROOFS.has(h.toLowerCase())));
+  const blocked = makeBlocked(o);
   const lead = page.sections[0];
   if (!lead) throw new Error("page has no sections");
   const body = page.sections.filter((s) => !blocked(s));

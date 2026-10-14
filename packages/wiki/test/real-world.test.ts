@@ -154,3 +154,33 @@ describe("second live run: remaining defects", () => {
     expect(d.cards.filter((c) => c.format === "latex")).toHaveLength(0);
   });
 });
+
+import { readFileSync } from "node:fs";
+import { clipWords, conceptPassage } from "../src";
+
+describe("conceptPassage", () => {
+  const fixture = parsePage(readFileSync(new URL("./fixtures/kinetic-energy.html", import.meta.url), "utf8"), { title: "Kinetic energy" });
+  it("gives the main concept the lead and the usable sections, never blocked ones", () => {
+    const t = conceptPassage(fixture, "wiki:Kinetic_energy")!;
+    expect(t).toContain("form of energy that an object possesses");
+    expect(t).toContain("## Newtonian kinetic energy");
+    expect(t).toContain("Integrating Newton's second law");
+    expect(t).not.toMatch(/Leibniz|Some reference text|Navbox/);
+  });
+  it("gives a section concept only its own section and subsections", () => {
+    const t = conceptPassage(fixture, "wiki:Kinetic_energy#Newtonian_kinetic_energy")!;
+    expect(t).toContain("increases with the square of its");
+    expect(t).toContain("## Work–energy theorem");
+    expect(t).not.toContain("possesses due to its");
+  });
+  it("keeps headings on their own lines, so a model can tell sections apart", () => {
+    const t = conceptPassage(fixture, "wiki:Kinetic_energy#Newtonian_kinetic_energy")!;
+    expect(t).toMatch(/\n## Work–energy theorem\n\nIntegrating/);
+    expect(clipWords("one two\n\nthree four five", 3)).toBe("one two\n\nthree");
+  });
+  it("returns null for unknown concepts and caps the length", () => {
+    expect(conceptPassage(fixture, "wiki:Other")).toBeNull();
+    expect(conceptPassage(fixture, "wiki:Kinetic_energy#Nope")).toBeNull();
+    expect(conceptPassage(fixture, "wiki:Kinetic_energy", { maxWords: 20 })!.split(/\s+/)).toHaveLength(20);
+  });
+});

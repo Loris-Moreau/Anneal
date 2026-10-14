@@ -46,6 +46,8 @@ export const DeckMetaSchema = z.object({
   localOnly: z.boolean().default(false),
   language: z.string().default("en"),
   pipelineVersion: z.string().min(1),
+  /** Present when an LLM wrote some of the cards. */
+  generation: z.object({ model: z.string(), promptVersion: z.string() }).optional(),
   sha256: z.string().optional(),
 });
 export type DeckMeta = z.infer<typeof DeckMetaSchema>;
