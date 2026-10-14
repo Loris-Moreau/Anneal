@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { gradeTier2, type Card } from "@anneal/core";
-import { cosine, createKeyPointScorer, createLexicalScorer, splitAnswerSentences, type Embedder, type NliModel, type NliProbs } from "../src";
+import { cosine, createKeyPointScorer, describeLoadError, createLexicalScorer, splitAnswerSentences, type Embedder, type NliModel, type NliProbs } from "../src";
 
 const words = (s: string) => s.toLowerCase().match(/[a-z]+/g) ?? [];
 const embedder: Embedder = {
@@ -101,5 +101,18 @@ describe("lexical baseline", () => {
     expect(hit!.support).toBeGreaterThan(0.7);
     expect(miss!.support).toBe(0);
     expect(hit!.contradiction + miss!.contradiction).toBe(0);
+  });
+});
+
+describe("describeLoadError", () => {
+  it("suggests installing only when the package itself is missing", () => {
+    expect(describeLoadError(new Error("Cannot find package '@huggingface/transformers' imported from /x/y.ts")).message).toMatch(/pnpm --filter @anneal\/scorer add/);
+  });
+  it("keeps the real cause when the package is present but a dependency fails", () => {
+    const e = describeLoadError(new Error("Cannot find package 'onnxruntime-node' imported from /x/transformers.js"));
+    expect(e.message).toMatch(/onnxruntime-node/);
+    expect(e.message).toMatch(/approve-builds/);
+    expect(e.message).not.toMatch(/Install it once/);
+    expect(describeLoadError(new Error("boom")).message).toMatch(/boom/);
   });
 });

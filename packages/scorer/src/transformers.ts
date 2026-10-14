@@ -19,12 +19,23 @@ export interface TransformersOptions {
   dtype?: string;
 }
 
+/** Separates "package not installed" from "installed but failed to load", so the real cause is never hidden. */
+export function describeLoadError(e: unknown): Error {
+  const msg = e instanceof Error ? e.message : String(e);
+  if (/Cannot find (?:package|module) '@huggingface\/transformers'/.test(msg))
+    return new Error("Local models need the transformers.js runtime. Install it once:\n  pnpm --filter @anneal/scorer add @huggingface/transformers");
+  return new Error(
+    `transformers.js failed to load: ${msg}\nIf this mentions onnxruntime or a .node binary, its build script was not allowed: run pnpm approve-builds, then pnpm install.`,
+    { cause: e },
+  );
+}
+
 async function loadLib(): Promise<any> {
   const name = "@huggingface/transformers";
   try {
     return await import(name);
-  } catch {
-    throw new Error("Local models need the transformers.js runtime. Install it once:\n  pnpm --filter @anneal/scorer add @huggingface/transformers");
+  } catch (e) {
+    throw describeLoadError(e);
   }
 }
 
