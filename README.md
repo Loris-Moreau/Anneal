@@ -75,7 +75,7 @@ $env:ANNEAL_LLM_TEMPERATURE = "0.2"        # optional; not sent unless set (Goog
 
 ### Getting a free Gemini key
 
-1. Open https://aistudio.google.com/apikey, sign in with a Google account, click **Create API key**. No billing setup is needed for the free tier. The key starts with `AIza`.
+1. Open https://aistudio.google.com/apikey, sign in with a Google account, click **Create API key**. No billing setup is needed for the free tier. Never paste the key anywhere public: revoke it on the same page if you do.
 2. Pick a model id. As of 2026-10-14 Google's release notes list `gemini-3.8-flash` (most capable Flash), `gemini-3.6-flash`, `gemini-3.5-flash-lite`, and `gemini-3.1-flash-lite`. Do not use `gemini-2.5-*`: since 2026-09-18 Google limits those to accounts that already used them, so a new key gets 404.
 3. Free limits are small and change; check https://aistudio.google.com/rate-limit. Third-party reports from September 2026: about 20 requests/day for `gemini-3.8-flash` and about 500/day for `gemini-3.5-flash-lite`. Use the lite model while tuning, the bigger one for final decks. Results are cached per model, so switching models regenerates.
 4. Free-tier prompts may be used to improve Google's products. Fine for public Wikipedia text; do not send private or copyrighted book text on the free tier.

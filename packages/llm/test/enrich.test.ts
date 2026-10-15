@@ -76,6 +76,15 @@ describe("enrichDeck", () => {
     expect(report.prompts[0]!.user).toContain("ATP");
   });
 
+  it("drops a question that another concept already asked in different words, keeps distinct ones", async () => {
+    const reworded = { ...GOOD, prompt: "Why does the folding of the inner mitochondrial membrane raise the ATP production of a mitochondrion?" };
+    const client = fakeClient(json([GOOD]), json([reworded, GOOD2]));
+    const { deck: d, report } = await enrichDeck(deck(), client, { ...base, passagesFor: passages({ "wiki:Mitochondrion": PASSAGE, "wiki:Mitochondrion#Structure": PASSAGE }) });
+    const added = d.cards.filter((c) => c.rubric.length);
+    expect(added.map((c) => c.prompt)).toEqual([GOOD.prompt, GOOD2.prompt]);
+    expect(report.concepts[1]!.rejected).toEqual([{ reason: "near_duplicate", prompt: reworded.prompt }]);
+  });
+
   it("clips without flattening line breaks", async () => {
     const client = fakeClient(json([GOOD]));
     const text = `## Heading\n\n${Array(300).fill("word").join(" ")}`;

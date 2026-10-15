@@ -1,6 +1,7 @@
 import { canonical, stableId, type Card, type Deck } from "@anneal/core";
 import type { ChatClient } from "./client";
 import type { LlmCache } from "./cache";
+import { contentWords } from "./gates";
 import { generateRawCards, type Rejected } from "./generate";
 import { buildUserPrompt, estimateTokens, PROMPT_VERSION, SYSTEM_PROMPT } from "./prompt";
 
@@ -36,6 +37,17 @@ export interface EnrichReport {
   prompts: { conceptId: string; system: string; user: string }[];
 }
 
+const jaccard = (a: string[], b: string[]) => {
+  const A = new Set(a), B = new Set(b);
+  let both = 0;
+  for (const x of A) if (B.has(x)) both++;
+  const either = A.size + B.size - both;
+  return either ? both / either : 0;
+};
+
+/** Concepts overlap (the main concept sees the whole page), so the same question can come back worded differently. */
+const NEAR_DUPLICATE = { prompt: 0.6, answer: 0.7 };
+
 /** Keep the first maxWords words, preserving line breaks. */
 const clip = (text: string, maxWords: number) => {
   let count = 0;
@@ -54,6 +66,7 @@ export async function enrichDeck(deck: Deck, client: ChatClient | null, o: Enric
   const maxWords = o.maxPassageWords ?? 1500;
   const report: EnrichReport = { concepts: [], added: 0, calls: 0, promptTokens: 0, completionTokens: 0, prompts: [] };
   const existing = new Set(deck.cards.map((c) => c.id));
+  const seen = deck.cards.filter((c) => c.rubric.length).map((c) => ({ p: contentWords(c.prompt), a: contentWords(c.answer) }));
   const added: Card[] = [];
   let attempted = 0;
 
@@ -92,6 +105,13 @@ export async function enrichDeck(deck: Deck, client: ChatClient | null, o: Enric
     }
     entry.status = res.fromCache ? "cached" : "generated";
     for (const r of res.cards) {
+      const p = contentWords(r.prompt);
+      const a = contentWords(r.reference_answer);
+      if (seen.some((x) => jaccard(p, x.p) >= NEAR_DUPLICATE.prompt || jaccard(a, x.a) >= NEAR_DUPLICATE.answer)) {
+        entry.rejected.push({ reason: "near_duplicate", prompt: r.prompt });
+        continue;
+      }
+      seen.push({ p, a });
       const id = stableId("c", deck.meta.id, "llm", canonical(r.prompt));
       if (existing.has(id)) continue;
       existing.add(id);
