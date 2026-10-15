@@ -40,6 +40,16 @@ describe("createChatClient", () => {
     expect(client.stats).toMatchObject({ calls: 1, promptTokens: 10, completionTokens: 5 });
   });
 
+  it("sends no sampling parameters unless asked, and passes reasoning effort through", async () => {
+    const plain = server(ok());
+    await make(plain).client.complete(input);
+    expect(body(plain, 0)).not.toHaveProperty("temperature");
+    expect(body(plain, 0)).not.toHaveProperty("reasoning_effort");
+    const tuned = server(ok());
+    await make(tuned, { temperature: 0.3, reasoningEffort: "low" }).client.complete(input);
+    expect(body(tuned, 0)).toMatchObject({ temperature: 0.3, reasoning_effort: "low" });
+  });
+
   it("steps down schema -> object -> none when the provider rejects the response format", async () => {
     const s = server({ status: 400, text: "response_format json_schema is not supported" }, { status: 400, text: "json_object unsupported" }, ok());
     const { client } = make(s);
@@ -113,8 +123,15 @@ describe("llmConfigFromEnv", () => {
     expect(() => llmConfigFromEnv({})).toThrow(/ANNEAL_LLM_MODEL/);
     expect(() => llmConfigFromEnv({ ANNEAL_LLM_MODEL: "m" })).toThrow(/ANNEAL_LLM_API_KEY/);
   });
-  it("defaults to the AI Studio endpoint, 10 requests per minute, and schema mode", () => {
-    expect(llmConfigFromEnv({ ANNEAL_LLM_MODEL: "m", ANNEAL_LLM_API_KEY: "k" })).toEqual({ baseUrl: DEFAULT_BASE_URL, model: "m", apiKey: "k", rpm: 10, jsonMode: "schema" });
+  it("defaults to the AI Studio endpoint, 5 requests per minute, and schema mode", () => {
+    expect(llmConfigFromEnv({ ANNEAL_LLM_MODEL: "m", ANNEAL_LLM_API_KEY: "k" })).toEqual({ baseUrl: DEFAULT_BASE_URL, model: "m", apiKey: "k", rpm: 5, jsonMode: "schema" });
+  });
+  it("reads optional temperature and reasoning effort", () => {
+    const base = { ANNEAL_LLM_MODEL: "m", ANNEAL_LLM_API_KEY: "k" };
+    expect(llmConfigFromEnv({ ...base, ANNEAL_LLM_TEMPERATURE: "0.2", ANNEAL_LLM_REASONING_EFFORT: "low" })).toMatchObject({ temperature: 0.2, reasoningEffort: "low" });
+    expect(llmConfigFromEnv(base)).not.toHaveProperty("temperature");
+    expect(() => llmConfigFromEnv({ ...base, ANNEAL_LLM_REASONING_EFFORT: "max" })).toThrow(/REASONING_EFFORT/);
+    expect(() => llmConfigFromEnv({ ...base, ANNEAL_LLM_TEMPERATURE: "hot" })).toThrow(/TEMPERATURE/);
   });
   it("needs no key for a local server and validates numeric and enum settings", () => {
     expect(llmConfigFromEnv({ ANNEAL_LLM_MODEL: "m", ANNEAL_LLM_BASE_URL: "http://localhost:11434/v1" }).apiKey).toBeUndefined();

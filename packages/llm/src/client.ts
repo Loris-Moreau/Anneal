@@ -10,7 +10,10 @@ export interface ChatClientOptions {
   /** Requests per minute. Free tiers are tight: set this below the provider's limit. */
   rpm?: number;
   maxRetries?: number;
+  /** Omitted from requests unless set: Google deprecated sampling parameters for its newer models. */
   temperature?: number;
+  /** Sent as reasoning_effort. Thinking models spend time and tokens reasoning; "low" is enough for structured extraction. */
+  reasoningEffort?: "minimal" | "low" | "medium" | "high";
   fetch?: typeof fetch;
   sleep?: (ms: number) => Promise<void>;
   now?: () => number;
@@ -57,7 +60,8 @@ export function createChatClient(o: ChatClientOptions): ChatClient {
 
   const bodyFor = (i: CompleteInput, m: JsonMode) => ({
     model: o.model,
-    temperature: o.temperature ?? 0.2,
+    ...(o.temperature !== undefined ? { temperature: o.temperature } : {}),
+    ...(o.reasoningEffort ? { reasoning_effort: o.reasoningEffort } : {}),
     messages: [
       { role: "system", content: i.system },
       { role: "user", content: i.user },

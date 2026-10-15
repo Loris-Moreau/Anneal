@@ -65,13 +65,22 @@ Configure any OpenAI-compatible provider with environment variables (PowerShell)
 
 ```
 $env:ANNEAL_LLM_API_KEY = "..."            # not needed for a local server
-$env:ANNEAL_LLM_MODEL = "<model id>"       # copy a current one from the provider's console: free-tier names change
+$env:ANNEAL_LLM_MODEL = "gemini-3.5-flash-lite"   # see "Getting a free Gemini key" below
 $env:ANNEAL_LLM_BASE_URL = "..."           # default: Google AI Studio's OpenAI-compatible endpoint
-$env:ANNEAL_LLM_RPM = "10"                 # stay under the provider's per-minute limit
+$env:ANNEAL_LLM_RPM = "5"                  # requests per minute, below the provider's limit (default 5)
 $env:ANNEAL_LLM_JSON_MODE = "schema"       # schema | object | none (steps down by itself if the provider rejects it)
+$env:ANNEAL_LLM_REASONING_EFFORT = "low"   # optional: minimal | low | medium | high, for thinking models
+$env:ANNEAL_LLM_TEMPERATURE = "0.2"        # optional; not sent unless set (Google deprecated sampling parameters on newer models)
 ```
 
-Other providers: set `ANNEAL_LLM_BASE_URL` to their OpenAI-compatible URL (Groq, Mistral, a local Ollama at `http://localhost:11434/v1`). The endpoint and model ids above are not verified against live providers.
+### Getting a free Gemini key
+
+1. Open https://aistudio.google.com/apikey, sign in with a Google account, click **Create API key**. No billing setup is needed for the free tier. The key starts with `AIza`.
+2. Pick a model id. As of 2026-10-14 Google's release notes list `gemini-3.8-flash` (most capable Flash), `gemini-3.6-flash`, `gemini-3.5-flash-lite`, and `gemini-3.1-flash-lite`. Do not use `gemini-2.5-*`: since 2026-09-18 Google limits those to accounts that already used them, so a new key gets 404.
+3. Free limits are small and change; check https://aistudio.google.com/rate-limit. Third-party reports from September 2026: about 20 requests/day for `gemini-3.8-flash` and about 500/day for `gemini-3.5-flash-lite`. Use the lite model while tuning, the bigger one for final decks. Results are cached per model, so switching models regenerates.
+4. Free-tier prompts may be used to improve Google's products. Fine for public Wikipedia text; do not send private or copyrighted book text on the free tier.
+
+Other providers: set `ANNEAL_LLM_BASE_URL` to their OpenAI-compatible URL (Groq, Mistral, a local Ollama at `http://localhost:11434/v1`). Google's endpoint and bearer-key auth match its OpenAI-compatibility documentation of 2026-10-13; structured output is documented there too, but not yet exercised by this tool against the live service.
 
 ```
 pnpm anneal wiki "Photosynthesis" --llm --dry-run     # prints the plan, a token estimate, and the first prompt. Sends nothing.

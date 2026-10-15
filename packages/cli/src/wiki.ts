@@ -63,7 +63,12 @@ export async function runWiki(argv: string[]): Promise<number> {
     const dry = values["dry-run"];
     const cfg = dry ? null : llmConfigFromEnv(process.env);
     const client = cfg
-      ? createChatClient({ baseUrl: cfg.baseUrl, model: cfg.model, rpm: cfg.rpm, jsonMode: cfg.jsonMode, ...(cfg.apiKey ? { apiKey: cfg.apiKey } : {}) })
+      ? createChatClient({
+          baseUrl: cfg.baseUrl, model: cfg.model, rpm: cfg.rpm, jsonMode: cfg.jsonMode,
+          ...(cfg.apiKey ? { apiKey: cfg.apiKey } : {}),
+          ...(cfg.temperature !== undefined ? { temperature: cfg.temperature } : {}),
+          ...(cfg.reasoningEffort ? { reasoningEffort: cfg.reasoningEffort } : {}),
+        })
       : null;
     const out = await enrichDeck(deck, client, {
       pageTitle: title,
