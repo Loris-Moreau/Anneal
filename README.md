@@ -95,6 +95,23 @@ Cost control: results are cached in `.anneal-cache/llm` by model, prompt version
 
 Tier 2 scores each key point as an NLI hypothesis, so write them as short, standalone claims: explicit subject, no pronouns ("They occur in..." scored 0.00 against a correct answer), one fact each, and no detail a correct answer may reasonably omit ("...of the chloroplast"). 2-4 per card.
 
+## Workbench (desktop app)
+
+An Electron app for the deck author: browse published decks and their cards, generate decks from Wikipedia, review the generated cards, and publish into the `Anneal-Decks` folder. It never runs git: you commit and push yourself. Calibration, labeling and practice are not in it yet; the CLI keeps those.
+
+```
+pnpm install            # downloads the Electron binary (electron is in allowBuilds); if pnpm complains, run: pnpm approve-builds
+pnpm app                # builds and starts the app
+pnpm app:dev            # development mode: Vite hot reload for the UI
+pnpm app:dist           # Windows installer in apps/desktop/release (NSIS). Not yet verified.
+```
+
+First run: open **Settings**, choose the `Anneal-Decks` folder, set your Wikipedia User-Agent, and (for model cards) the model id and API key. The key is stored encrypted with the operating system's credential store, never in a file. **Generate** can plan first (no cost, shows token estimates), then run; the result is a **draft**. In **Drafts**, every card written by the model starts *pending*: approve, edit or reject each one. Publishing is blocked until none is pending, and it shows the diff against the published copy before writing three files into `Anneal-Decks/decks/<id>/`.
+
+Layout: `packages/workbench` (all logic, no Electron: library, drafts, publish, generation, settings, git status), `apps/desktop/src/main` (Electron main process and preload), `apps/desktop/src/renderer` (React UI). The window is locked down: sandboxed, no Node in the page, navigation limited to the app's own files, IPC limited to a whitelist of methods, links limited to Wikipedia and GitHub.
+
+CI installs only what the CLI needs (`pnpm install --frozen-lockfile --filter "@anneal/cli..."`), so the Anneal-Decks workflows do not download Electron.
+
 ## Design rules enforced in code
 
 - Content (`Deck`, `Card`) never holds scheduling data. Scheduling state (`CardState`) is private and keyed by stable card id.
