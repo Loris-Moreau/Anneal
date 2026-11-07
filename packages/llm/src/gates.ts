@@ -1,27 +1,46 @@
+/**
+ * gates.ts: deterministic quality gates for model-written cards. They stand in for an LLM judge and enforce what
+ * calibration showed matters: standalone, atomic, grounded key points.
+ */
+
 import { canonical } from "@anneal/core";
 import type { RawCard } from "./schema";
 
+/** Kinds of problem a generated card can have. */
 export type RubricIssueCode =
   | "key_points_count" | "key_point_pronoun" | "key_point_length" | "key_point_ungrounded"
   | "quote_missing" | "quote_not_in_passage" | "prompt_form" | "prompt_context" | "prompt_leak" | "answer_ungrounded";
 
+/** One problem found on one generated card. */
 export interface RubricIssue {
   code: RubricIssueCode;
   message: string;
 }
 
+/** Common words ignored when comparing content. */
 const STOP = new Set("a an the of to in on at for and or but is are was were be been it its that this these those with as by from which can will would may not no so than then there their they them his her he she we you i".split(" "));
+/** Crude suffix stripping, enough to match "folded" with "folding". */
 const stem = (w: string) => (w.length > 4 ? w.replace(/(ing|ed|es|s)$/, "") : w);
+/** The meaningful, lightly stemmed words of a text. */
 export const contentWords = (s: string): string[] =>
   (s.toLowerCase().match(/[a-z0-9']+/g) ?? []).filter((w) => w.length > 2 && !STOP.has(w)).map(stem);
 
+/** Fraction of `words` that occur in `inside`. */
 const share = (words: string[], inside: ReadonlySet<string>) => (words.length ? words.filter((w) => inside.has(w)).length / words.length : 0);
+/** Number of whitespace-separated words. */
 const wordCount = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
 
+/**
+ * A key point must not start with one of these: it would not stand alone (such points scored 0.00 in
+ * calibration).
+ */
 const PRONOUN_START = /^(?:they|it|its|this|these|those|he|she|his|her|their|such|there|here|that)\b/i;
+/** Phrases that show a question leans on the source text. */
 const CONTEXT_WORDS = /\b(?:passage|the text|the article|above|below|the author|according to)\b/i;
+/** A question ends with a question mark or starts with an instruction verb. */
 const QUESTION_FORM = /\?\s*$|^(?:explain|describe|compare|contrast|predict|derive|justify|show)\b/i;
 
+/** Thresholds of the gates. */
 export interface GateOptions {
   /** Share of a key point's content words that must occur in the passage. */
   keyPointGrounding?: number;

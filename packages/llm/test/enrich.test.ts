@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { checkDeckFiles, DeckSchema, serializeDeck, validateDeck, type Deck } from "@anneal/core";
-import { enrichDeck, memoryCache } from "../src";
+import { CancelledError, enrichDeck, memoryCache } from "../src";
 import { fakeClient, GOOD, GOOD2, json, PASSAGE } from "./fixtures";
 
 const deck = (): Deck =>
@@ -83,6 +83,24 @@ describe("enrichDeck", () => {
     const added = d.cards.filter((c) => c.rubric.length);
     expect(added.map((c) => c.prompt)).toEqual([GOOD.prompt, GOOD2.prompt]);
     expect(report.concepts[1]!.rejected).toEqual([{ reason: "near_duplicate", prompt: reworded.prompt }]);
+  });
+
+  it("stops before the next concept when aborted, and a rerun reuses what finished", async () => {
+    const ctl = new AbortController();
+    const cache = memoryCache();
+    const both = passages({ "wiki:Mitochondrion": PASSAGE, "wiki:Mitochondrion#Structure": PASSAGE });
+    const client = fakeClient();
+    // The user cancels while the first concept's call is in flight; that call still completes and is cached.
+    client.complete.mockImplementationOnce(async () => {
+      ctl.abort();
+      return { text: json([GOOD]), usage: { promptTokens: 1, completionTokens: 1 }, mode: "schema" as const };
+    });
+    await expect(enrichDeck(deck(), client, { ...base, cache, passagesFor: both, signal: ctl.signal })).rejects.toBeInstanceOf(CancelledError);
+    expect(client.complete).toHaveBeenCalledTimes(1);
+    const again = fakeClient(json([GOOD2]));
+    const { report } = await enrichDeck(deck(), again, { ...base, cache, passagesFor: both });
+    expect(again.complete).toHaveBeenCalledTimes(1); // only the concept that never ran
+    expect(report.concepts.map((c) => c.status)).toEqual(["cached", "generated", "skipped"]);
   });
 
   it("clips without flattening line breaks", async () => {

@@ -1,9 +1,15 @@
+/**
+ * tier1.ts: tier 1 grading: exact, numeric and fuzzy string comparison. Free, instant, and decisive only for
+ * short answers.
+ */
+
 import type { Card } from "../schema";
 import { canonical, parseNumber, tokenize } from "./normalize";
 import { similarity } from "./fuzzy";
 import { canonicalLatex } from "./latex";
 import type { TierResult } from "./types";
 
+/** Thresholds of tier 1. */
 export interface Tier1Config {
   /** Short-answer similarity at or above this is correct. */
   accept: number;
@@ -14,12 +20,24 @@ export interface Tier1Config {
   numericTolerance: number;
 }
 
+/**
+ * Starting thresholds. 0.9 accepts one typo in a word of ten or more letters; they are placeholders until
+ * calibrated on real answers.
+ */
 export const TIER1_DEFAULTS: Tier1Config = { accept: 0.9, reject: 0.5, maxShortTokens: 4, numericTolerance: 1e-6 };
 
+/**
+ * True for cards whose answer is a term or a few words (no rubric): the only cards tier 1 may settle by string
+ * similarity alone.
+ */
 export function isShortAnswer(card: Card, cfg: Pick<Tier1Config, "maxShortTokens"> = TIER1_DEFAULTS): boolean {
   return card.rubric.length === 0 && (card.type === "cloze" || tokenize(card.answer).length <= cfg.maxShortTokens);
 }
 
+/**
+ * Grades by string comparison: exact match after normalization, numeric equality, LaTeX equality for formula
+ * cards, then fuzzy similarity for short answers. Anything it is not sure of falls through to the next tier.
+ */
 export function gradeTier1(card: Card, answer: string, cfg: Tier1Config = TIER1_DEFAULTS): TierResult {
   if (tokenize(answer).length === 0) return { verdict: "incorrect", confident: true, score: 0 };
 

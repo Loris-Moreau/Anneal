@@ -1,8 +1,15 @@
+/**
+ * mock-llm.ts: a fake OpenAI-compatible server for trying --llm without an API key. Its cards are built from the
+ * passage and are NOT real quality.
+ */
+
 import { createServer } from "node:http";
 import { parseArgs } from "node:util";
 
+/** Help text of the mock command. */
 export const MOCK_USAGE = "  anneal mock-llm [--port 8787]    (a fake OpenAI-compatible server for trying --llm without an API key; its cards are NOT real quality)";
 
+/** Sentences that start with these are skipped, matching the real quality gates. */
 const PRONOUN = /^(?:they|it|its|this|these|those|he|she|his|her|their|such|there|here|that)\b/i;
 
 /** Builds gate-passing cards from the passage in the prompt: key points are real sentences from the passage. */
@@ -31,6 +38,7 @@ function mockCards(user: string): unknown[] {
   return cards;
 }
 
+/** Starts the mock server and never returns (stop it with Ctrl+C). */
 export async function runMockLlm(argv: string[]): Promise<number> {
   const { values } = parseArgs({ args: argv, options: { port: { type: "string", default: "8787" } } });
   const server = createServer((req, res) => {

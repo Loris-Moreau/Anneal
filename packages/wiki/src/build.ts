@@ -1,9 +1,15 @@
+/**
+ * build.ts: from a parsed page to a deterministic deck (no LLM): chooses the sentences worth turning into cards,
+ * groups them into concepts, and assembles the deck with its provenance.
+ */
+
 import { canonical, checkCard, stableId, validateDeck, type Card, type Concept, type Deck } from "@anneal/core";
 import { definitionCandidates, formulaCandidates, isConceptTarget, linkCandidates, sameFormula, type Candidate, type CandidateKind, type Rejection } from "./candidates";
 import { extractDefinition } from "./definitions";
 import { stripParentheticals } from "./spans";
 import type { ParsedPage, Section } from "./types";
 
+/** Options of buildDeck: size limits, and which section groups to include. */
 export interface BuildOptions {
   maxCardsPerSection?: number;
   /** Sections yielding fewer cards than this are folded into the main concept. */
@@ -17,6 +23,10 @@ export interface BuildOptions {
   includeProofs?: boolean;
 }
 
+/**
+ * What buildDeck reports besides the deck: counts per card kind, prerequisites, rejected sentences with reasons
+ * (for tuning), and warnings.
+ */
 export interface BuildReport {
   counts: Record<CandidateKind, number>;
   concepts: number;
@@ -25,15 +35,24 @@ export interface BuildReport {
   warnings: string[];
 }
 
+/** Sections that never produce cards: references, see also, and other non-prose. */
 const ALWAYS_BLOCKED = new Set([
   "references", "external links", "see also", "further reading", "notes", "footnotes", "bibliography", "sources", "citations",
   "gallery", "in popular culture", "popular culture", "in fiction", "awards", "awards and honors", "legacy",
 ]);
+/** Sections skipped by default because they are mostly dates and names. includeHistory turns them on. */
 const HISTORY = new Set(["history", "etymology", "terminology", "origins", "discovery"]);
+/**
+ * Proof and derivation sections, skipped by default because a cloze on one proof step teaches little.
+ * includeProofs turns them on.
+ */
 const PROOFS = new Set(["proof", "proofs", "derivation", "derivations"]);
 
+/** Recorded in every deck's metadata, so a deck can be traced to the pipeline version that built it. */
 export const PIPELINE_VERSION = "wiki-prepass-0.1";
+/** Global concept id of a page: "wiki:" plus the title with underscores for spaces. */
 export const titleId = (t: string) => `wiki:${t.replace(/ /g, "_")}`;
+/** Lowercase, hyphen-separated form of a title, used in deck ids. */
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
 /** Sections that never feed cards: references, see also, and (by default) history and proofs. */
@@ -78,6 +97,11 @@ export function clipWords(text: string, n: number): string {
   return text;
 }
 
+/**
+ * Builds the deterministic deck of a page: a definition cloze and genus cloze from the lead, link clozes from
+ * explanatory sentences, and formula cards, grouped into a main concept plus one concept per substantial
+ * section. Never throws on poor pages: it returns an empty deck with warnings.
+ */
 export function buildDeck(page: ParsedPage, opts: BuildOptions = {}): { deck: Deck; report: BuildReport } {
   const o = { maxCardsPerSection: 6, minSectionCards: 2, maxPrerequisites: 8, maxFormulas: 5, maxCards: 60, includeHistory: false, includeProofs: false, ...opts };
   const blocked = makeBlocked(o);

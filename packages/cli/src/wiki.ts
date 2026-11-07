@@ -1,3 +1,8 @@
+/**
+ * wiki.ts: the `anneal wiki` command: fetch a Wikipedia page, build a deck, optionally add model cards, write
+ * it, optionally publish it into the deck repository.
+ */
+
 import { parseArgs } from "node:util";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -7,11 +12,16 @@ import { buildDeck, conceptPassage, fetchPage, parsePage } from "@anneal/wiki";
 import { publishDeckDir } from "./decks";
 import { at, defaultDecksRepo } from "./util";
 
+/** Help text of the wiki command. */
 export const WIKI_USAGE = `  anneal wiki <Page title> [--out decks] [--show] [--save-html file.html] [--publish [--to <Anneal-Decks clone>]]
     --publish validates the deck and copies it into ../Anneal-Decks (or --to / $ANNEAL_DECKS_REPO). It never runs git.
   anneal wiki <Page title> --html file.html [--revision N] [--out decks] [--show]
     Set ANNEAL_USER_AGENT to a descriptive string with a contact URL before fetching (Wikimedia policy).`;
 
+/**
+ * `anneal wiki <Page title>`: builds a deck (optionally with model cards), writes it with its report, and
+ * optionally publishes it. With --dry-run it only prints the plan and token estimate.
+ */
 export async function runWiki(argv: string[]): Promise<number> {
   const { positionals, values } = parseArgs({
     args: argv,

@@ -1,8 +1,13 @@
+/**
+ * files.ts: the on-disk format of one deck (meta.json, deck.jsonl, graph.json) and its integrity hash.
+ */
+
 import { DeckMetaSchema, ConceptSchema, type Deck } from "./schema";
 import { parseCards, serializeCards } from "./jsonl";
 import { sha256Hex } from "./ids";
 import { z } from "zod";
 
+/** The text of the three files of one deck folder, keyed by file name. */
 export interface DeckFiles {
   "meta.json": string;
   "deck.jsonl": string;

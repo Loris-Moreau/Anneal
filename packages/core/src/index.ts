@@ -1,3 +1,8 @@
+/**
+ * @anneal/core: deck schema, scheduling (FSRS), tiered grading, concept-graph queue, deck files, and quality
+ * checks. No DOM and no Node-only APIs, so it runs in the app, the CLI and CI.
+ */
+
 export * from "./schema";
 export * from "./ids";
 export * from "./jsonl";

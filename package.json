@@ -5,7 +5,12 @@
   "scripts": {
     "test": "pnpm -r test",
     "typecheck": "pnpm -r typecheck",
-    "anneal": "pnpm --filter @anneal/cli start"
+    "anneal": "pnpm --filter @anneal/cli start",
+    "app": "pnpm --filter @anneal/desktop start",
+    "app:dev": "pnpm --filter @anneal/desktop dev",
+    "app:dist": "pnpm --filter @anneal/desktop dist"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }

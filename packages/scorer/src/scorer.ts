@@ -1,7 +1,13 @@
+/**
+ * scorer.ts: the tier 2 key-point scorers: the embedding + NLI scorer, and a lexical baseline that needs no
+ * models.
+ */
+
 import type { KeyPointScore, KeyPointScorer } from "@anneal/core";
 import type { Embedder, NliModel } from "./types";
 import { cosine, splitAnswerSentences } from "./text";
 
+/** Options of the embedding + NLI scorer. */
 export interface ScorerOptions {
   /** Key points whose best answer sentence is less similar than this skip the NLI model: support 0. */
   minSimilarity?: number;
@@ -61,8 +67,11 @@ export function createKeyPointScorer(deps: { embedder: Embedder; nli: NliModel }
   };
 }
 
+/** Common words ignored by the lexical baseline. */
 const STOP = new Set("a an the of to in on at for and or but is are was were be been it its that this these those with as by from which can will would may not no so than then there their they them his her he she we you i".split(" "));
+/** Crude suffix stripping for the lexical baseline. */
 const stem = (w: string) => (w.length > 4 ? w.replace(/(ing|ed|es|s)$/, "") : w);
+/** The meaningful, lightly stemmed words of a text. */
 const contentTokens = (s: string) =>
   (s.toLowerCase().match(/[a-z0-9']+/g) ?? []).filter((w) => w.length > 2 && !STOP.has(w)).map(stem);
 

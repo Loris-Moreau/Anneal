@@ -1,3 +1,7 @@
+/**
+ * @anneal/llm: model-written understanding cards. Client, prompt, quality gates, cache and deck enrichment.
+ */
+
 export * from "./client";
 export * from "./json";
 export * from "./schema";

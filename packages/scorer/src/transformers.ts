@@ -1,3 +1,8 @@
+/**
+ * transformers.ts: running the embedding and NLI models locally with transformers.js (ONNX). Loaded on demand so
+ * the rest of the code works without it installed.
+ */
+
 import type { KeyPointScorer } from "@anneal/core";
 import { createKeyPointScorer, type ScorerOptions } from "./scorer";
 import type { Embedder, NliModel, NliProbs } from "./types";
@@ -11,6 +16,7 @@ export const DEFAULT_MODELS = {
   nli: "Xenova/nli-deberta-v3-xsmall",
 };
 
+/** Which models to load and how. */
 export interface TransformersOptions {
   embedModel?: string;
   nliModel?: string;
@@ -30,6 +36,7 @@ export function describeLoadError(e: unknown): Error {
   );
 }
 
+/** Loads transformers.js on demand, turning a failure into an explanatory error. */
 async function loadLib(): Promise<any> {
   const name = "@huggingface/transformers";
   try {
@@ -39,6 +46,7 @@ async function loadLib(): Promise<any> {
   }
 }
 
+/** Loads an embedding model and returns an Embedder that produces normalized vectors. */
 export async function createTransformersEmbedder(model: string, o: Pick<TransformersOptions, "pooling" | "dtype"> = {}): Promise<Embedder> {
   const tf = await loadLib();
   const extractor = await tf.pipeline("feature-extraction", model, { dtype: o.dtype ?? "q8" });
@@ -50,6 +58,7 @@ export async function createTransformersEmbedder(model: string, o: Pick<Transfor
   };
 }
 
+/** Turns logits into probabilities. */
 const softmax = (xs: number[]) => {
   const m = Math.max(...xs);
   const e = xs.map((x) => Math.exp(x - m));
@@ -57,6 +66,10 @@ const softmax = (xs: number[]) => {
   return e.map((x) => x / s);
 };
 
+/**
+ * Loads an NLI cross-encoder and returns a model that classifies (premise, hypothesis) pairs, 16 at a time. The
+ * model's labels must include entailment, neutral and contradiction.
+ */
 export async function createTransformersNli(model: string, o: Pick<TransformersOptions, "dtype"> = {}): Promise<NliModel> {
   const tf = await loadLib();
   const tokenizer = await tf.AutoTokenizer.from_pretrained(model);
@@ -87,6 +100,7 @@ export async function createTransformersNli(model: string, o: Pick<TransformersO
   };
 }
 
+/** The full local scorer: embedder + NLI model wrapped in the key-point scorer. */
 export async function createLocalScorer(o: TransformersOptions & ScorerOptions = {}): Promise<KeyPointScorer> {
   const pooling = o.pooling ?? "cls";
   const embedder = await createTransformersEmbedder(o.embedModel ?? DEFAULT_MODELS.embed, o.dtype ? { pooling, dtype: o.dtype } : { pooling });

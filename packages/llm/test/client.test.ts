@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { createChatClient, extractJson, LlmHttpError, outputJsonSchema } from "../src";
+import { CancelledError, createChatClient, extractJson, LlmHttpError, outputJsonSchema } from "../src";
 
 type Reply = { status?: number; body?: unknown; text?: string; headers?: Record<string, string> };
 const ok = (content: string | null = "{}"): Reply => ({ body: { choices: [{ message: { content } }], usage: { prompt_tokens: 10, completion_tokens: 5 } } });
@@ -137,5 +137,24 @@ describe("llmConfigFromEnv", () => {
     expect(llmConfigFromEnv({ ANNEAL_LLM_MODEL: "m", ANNEAL_LLM_BASE_URL: "http://localhost:11434/v1" }).apiKey).toBeUndefined();
     expect(() => llmConfigFromEnv({ ANNEAL_LLM_MODEL: "m", ANNEAL_LLM_API_KEY: "k", ANNEAL_LLM_RPM: "fast" })).toThrow(/RPM/);
     expect(() => llmConfigFromEnv({ ANNEAL_LLM_MODEL: "m", ANNEAL_LLM_API_KEY: "k", ANNEAL_LLM_JSON_MODE: "xml" })).toThrow(/JSON_MODE/);
+  });
+});
+
+describe("cancellation", () => {
+  it("does not call the server when already aborted", async () => {
+    const s = server(ok());
+    const ctl = new AbortController();
+    ctl.abort();
+    await expect(make(s).client.complete({ ...input, signal: ctl.signal })).rejects.toBeInstanceOf(CancelledError);
+    expect(s.calls).toHaveLength(0);
+  });
+  it("turns an abort during the request into CancelledError, not a generic failure", async () => {
+    const ctl = new AbortController();
+    const fetchFn = vi.fn(async () => {
+      ctl.abort();
+      throw new DOMException("aborted", "AbortError");
+    }) as unknown as typeof fetch;
+    const client = createChatClient({ baseUrl: "https://api.test/v1", model: "m", fetch: fetchFn, sleep: async () => {} });
+    await expect(client.complete({ ...input, signal: ctl.signal })).rejects.toBeInstanceOf(CancelledError);
   });
 });

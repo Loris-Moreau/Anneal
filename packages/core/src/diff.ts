@@ -1,6 +1,11 @@
+/**
+ * diff.ts: comparing two versions of a deck's cards, and finding scheduling state left without a card.
+ */
+
 import type { Card, CardState } from "./schema";
 import { cardFingerprint } from "./jsonl";
 
+/** The difference between two versions of a deck's cards, matched by card id. */
 export interface DeckDiff {
   added: Card[];
   removed: Card[];

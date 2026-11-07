@@ -1,5 +1,11 @@
+/**
+ * config.ts: reading the model configuration from ANNEAL_LLM_* environment variables, with checks and actionable
+ * errors.
+ */
+
 import type { JsonMode } from "./client";
 
+/** A validated model configuration. */
 export interface LlmConfig {
   baseUrl: string;
   model: string;
@@ -13,6 +19,10 @@ export interface LlmConfig {
 /** Google AI Studio's OpenAI-compatible endpoint. Any OpenAI-compatible server works (Groq, Mistral, Ollama at http://localhost:11434/v1, ...). */
 export const DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/";
 
+/**
+ * Builds the configuration from ANNEAL_LLM_* variables. @throws with an actionable message when the model or key
+ * is missing or a value is invalid.
+ */
 export function llmConfigFromEnv(env: Record<string, string | undefined>): LlmConfig {
   const baseUrl = env["ANNEAL_LLM_BASE_URL"] || DEFAULT_BASE_URL;
   const model = env["ANNEAL_LLM_MODEL"];

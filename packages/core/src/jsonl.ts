@@ -1,10 +1,17 @@
+/**
+ * jsonl.ts: reading and writing cards as JSON Lines (one card per line), and the content fingerprint used to
+ * detect edits.
+ */
+
 import { CardSchema, type Card } from "./schema";
 import { sha256Hex } from "./ids";
 
+/** Writes cards as JSON Lines, one card per line, ending with a newline. */
 export function serializeCards(cards: readonly Card[]): string {
   return cards.map((c) => JSON.stringify(c)).join("\n") + "\n";
 }
 
+/** Reads JSON Lines into validated cards. @throws with the line number of the first invalid line. */
 export function parseCards(text: string): Card[] {
   const out: Card[] = [];
   text.split("\n").forEach((line, i) => {

@@ -1,7 +1,14 @@
+/**
+ * definitions.ts: recognising the lead's defining sentence ("X is a Y that ...").
+ */
+
 import type { LinkSpan, Paragraph, Sentence } from "./types";
 import { splitSentences } from "./sentences";
 import { stripParentheticals } from "./spans";
 
+/**
+ * A recognised definition: the defined term, its aliases, the sentence, and (optionally) the genus link.
+ */
 export interface Definition {
   term: string;
   aliases: string[];
@@ -10,13 +17,19 @@ export interface Definition {
   genus?: LinkSpan;
 }
 
+/**
+ * What may follow the defined term: an optional "of ..." phrase and aliases, then a form of "to be" or "refers
+ * to".
+ */
 const COPULA = /^(?:\s+of\s+[^,;.]{1,40}?)?(?:,?\s*(?:also\s+(?:known|called|referred to)\s+as\s+[^,]{1,60},)?\s*)?(?:is|are|was|were|refers? to|denotes?)\b/i;
 /** Heads too generic to make a useful "X is a [...]" card. */
 const GENERIC_HEADS = new Set(["system", "process", "type", "form", "kind", "set", "class", "group", "part", "member", "way", "method", "term", "word", "thing", "concept", "branch", "field", "area", "number"]);
 /** A genus link must end its noun phrase: if a plain word follows, the link is only a modifier ("philosophical movement"). */
 const PHRASE_END = new Set(["of", "in", "that", "which", "who", "whose", "where", "when", "used", "for", "with", "found", "consisting", "composed", "made", "by", "to", "from", "on", "at", "as", "and", "or", "within", "between", "among", "through", "about", "containing", "having", "produced", "formed", "involving", "based", "characterized", "defined", "known", "called"]);
+/** Words allowed between the copula and the genus link: an optional article and up to three modifiers. */
 const GENUS_GAP = /^\s*(?:(?:a|an|the)\s+)?(?:[\w'-]+\s+){0,3}$/i;
 
+/** Tries to read one sentence as a definition. Returns null if it does not look like one. */
 function fromSentence(s: Sentence, title: string): Definition | null {
   let bolds = [...s.bold].sort((a, b) => a.start - b.start);
   if (bolds.length === 0 && s.text.toLowerCase().startsWith(title.toLowerCase()))

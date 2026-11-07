@@ -1,3 +1,8 @@
+/**
+ * decks.ts: the commands that work on deck folders: validate (the CI checks), index (index.json), publish (copy
+ * a generated deck into the deck repository).
+ */
+
 import { parseArgs } from "node:util";
 import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { basename, join, relative } from "node:path";
@@ -6,15 +11,18 @@ import {
 } from "@anneal/core";
 import { at, defaultDecksRepo } from "./util";
 
+/** Help text of the deck commands. */
 export const DECKS_USAGE = `  anneal validate [decksDir=decks] [--github] [--allowed-licenses CC-BY-SA-4.0,CC0-1.0]
   anneal index [decksDir=decks] [--out index.json]
   anneal publish <deckDir> [--to <Anneal-Decks clone>] [--allowed-licenses ...]   (default: ../Anneal-Decks or $ANNEAL_DECKS_REPO)`;
 
+/** Reads the three files of a deck folder. */
 async function readDeckDir(dir: string): Promise<DeckFiles> {
   const [meta, jsonl, graph] = await Promise.all(DECK_FILE_NAMES.map((n) => readFile(join(dir, n), "utf8")));
   return { "meta.json": meta!, "deck.jsonl": jsonl!, "graph.json": graph! };
 }
 
+/** Names of the deck folders under a decks directory (dot folders excluded), sorted. */
 async function deckDirs(root: string): Promise<string[]> {
   const out: string[] = [];
   for (const name of (await readdir(root)).sort()) {
@@ -24,9 +32,15 @@ async function deckDirs(root: string): Promise<string[]> {
   return out;
 }
 
+/** Parses a comma-separated license list, or returns the default open licenses. */
 const licensesOf = (v: string | undefined): readonly string[] => (v ? v.split(",").map((s) => s.trim()).filter(Boolean) : OPEN_LICENSES);
+/** Escapes a message for a GitHub Actions workflow command. */
 const esc = (s: string) => s.replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
 
+/**
+ * `anneal validate`: runs the publish checks on every deck and on card ids across decks. With --github, prints
+ * errors as workflow annotations. Exit 1 if any deck has problems.
+ */
 export async function runValidate(argv: string[]): Promise<number> {
   const { positionals, values } = parseArgs({
     args: argv,
@@ -71,6 +85,10 @@ export async function runValidate(argv: string[]): Promise<number> {
   return bad ? 1 : 0;
 }
 
+/**
+ * `anneal index`: writes index.json for all decks (sorted, no timestamps, so unchanged content gives identical
+ * output).
+ */
 export async function runIndex(argv: string[]): Promise<number> {
   const { positionals, values } = parseArgs({ args: argv, allowPositionals: true, options: { out: { type: "string", default: "index.json" } } });
   const root = at(positionals[0] ?? "decks");
@@ -111,6 +129,10 @@ export async function publishDeckDir(srcDir: string, repo: string, allowed?: rea
   return 0;
 }
 
+/**
+ * `anneal publish <deckDir>`: validates a generated deck and copies it into the deck repository (default: the
+ * Anneal-Decks folder next to this repository). Never runs git.
+ */
 export async function runPublish(argv: string[]): Promise<number> {
   const { positionals, values } = parseArgs({
     args: argv,

@@ -1,3 +1,8 @@
+/**
+ * grade.ts: the grading cascade. Tier 1 (string match) -> tier 2 (rubric scorer) -> tier 3 (LLM judge); the
+ * first confident tier wins, and if none is the learner self-rates.
+ */
+
 import type { Card } from "../schema";
 import { Rating, type FsrsGrade } from "../scheduler";
 import { gradeTier1, TIER1_DEFAULTS, type Tier1Config } from "./tier1";
@@ -5,12 +10,20 @@ import { gradeTier2, TIER2_DEFAULTS, type KeyPointScorer, type Tier2Config } fro
 import { verdictKey, type LlmJudge, type VerdictCache } from "./tier3";
 import type { Verdict } from "./types";
 
+/**
+ * The optional collaborators of the cascade. Without a scorer tier 2 is skipped; without a judge tier 3 is
+ * skipped; the cache stores judge verdicts.
+ */
 export interface GraderDeps {
   scorer?: KeyPointScorer;
   judge?: LlmJudge;
   cache?: VerdictCache;
 }
 
+/**
+ * Tuning for the cascade: per-tier thresholds, and a switch to forbid LLM calls (offline, or the budget is
+ * spent).
+ */
 export interface GraderConfig {
   tier1?: Partial<Tier1Config>;
   tier2?: Partial<Tier2Config>;
@@ -18,6 +31,10 @@ export interface GraderConfig {
   allowLlm?: boolean;
 }
 
+/**
+ * The outcome of grading one answer: the verdict, which tier decided it (0 = none did, the learner must
+ * self-rate), and details for feedback.
+ */
 export interface Grade {
   verdict: Verdict;
   /** 0 = no tier was confident; the UI must ask the user to self-rate. */
@@ -29,6 +46,10 @@ export interface Grade {
   needsSelfRating: boolean;
 }
 
+/**
+ * Grades a typed answer by running the tiers in order and stopping at the first confident one. A judge failure
+ * never blocks a review: it falls back to self-rating.
+ */
 export async function gradeAnswer(
   card: Card,
   answer: string,

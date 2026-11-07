@@ -1,6 +1,12 @@
+/**
+ * tier2.ts: tier 2 grading: scoring an explanation against the card's rubric key points with an injected scorer
+ * (embedding + NLI models, see @anneal/scorer).
+ */
+
 import type { Card } from "../schema";
 import type { TierResult } from "./types";
 
+/** A scorer's judgement of one rubric key point against the learner's answer. */
 export interface KeyPointScore {
   /** 0..1: how strongly the answer entails the key point (embedding similarity gated by NLI). */
   support: number;
@@ -15,6 +21,7 @@ export interface KeyPointScorer {
   score(answer: string, keyPoints: readonly string[], ctx: { prompt: string }): Promise<KeyPointScore[]>;
 }
 
+/** Thresholds of tier 2. See `confirmOnly` for the mode that only ever confirms correct answers. */
 export interface Tier2Config {
   covered: number;
   missed: number;
@@ -29,8 +36,13 @@ export interface Tier2Config {
 /** Placeholders. Calibrate against a labeled answer set before trusting them. */
 export const TIER2_DEFAULTS: Tier2Config = { covered: 0.7, missed: 0.3, contradiction: 0.5 };
 
+/** How one key point was classified from its scores. */
 type PointStatus = "covered" | "missing" | "unclear" | "contradicted";
 
+/**
+ * Scores the answer against each rubric key point and combines the results. Returns null for cards without a
+ * rubric. Uncertain results (mid-range support, any contradiction) are never confident: they go to tier 3.
+ */
 export async function gradeTier2(
   card: Card,
   answer: string,

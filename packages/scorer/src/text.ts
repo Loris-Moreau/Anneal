@@ -1,3 +1,8 @@
+/**
+ * text.ts: small text and vector helpers for the scorer.
+ */
+
+/** Splits an answer into sentences at sentence-ending punctuation or line breaks. */
 export function splitAnswerSentences(answer: string): string[] {
   return answer
     .split(/(?<=[.!?])\s+(?=[A-Z0-9"'(])|\n+/)
@@ -5,6 +10,7 @@ export function splitAnswerSentences(answer: string): string[] {
     .filter(Boolean);
 }
 
+/** Cosine similarity of two vectors; 0 if either is all zeros. */
 export function cosine(a: readonly number[], b: readonly number[]): number {
   let dot = 0;
   let na = 0;

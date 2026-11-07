@@ -1,14 +1,22 @@
+/**
+ * quality.ts: deterministic checks that stand in for an LLM judge when deciding whether a card is acceptable
+ * (leaked answers, missing blanks, ungrounded answers, ...).
+ */
+
 import type { Card } from "./schema";
 import { canonical, tokenize } from "./grading/normalize";
 import { canonicalLatex } from "./grading/latex";
 
+/** Kinds of problem checkCard can report. */
 export type QualityCode = "answer_leak" | "missing_blank" | "missing_rubric" | "not_grounded" | "too_long";
+/** One problem found on one card. */
 export interface QualityIssue {
   cardId: string;
   code: QualityCode;
   message: string;
 }
 
+/** Limits and the optional source text used for the grounding check. */
 export interface QualityOptions {
   /** Source passage the card was generated from. Enables the grounding check. */
   sourceText?: string;
@@ -18,7 +26,9 @@ export interface QualityOptions {
   groundingThreshold?: number;
 }
 
+/** Card types that test an explanation and therefore need rubric key points. */
 const COMPREHENSION = new Set(["why_how", "compare", "predict", "derive"]);
+/** Matches the blank marker of a cloze card: "[...]" or a run of underscores. */
 const BLANK = /\[\.\.\.\]|_{3,}/;
 
 /** Deterministic gates that replace an LLM judge. Cheap enough to run on every card in CI. */

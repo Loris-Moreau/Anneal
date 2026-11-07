@@ -1,8 +1,13 @@
+/**
+ * prompt.ts: the instructions given to the model, and the per-concept request.
+ */
+
 import { GENERATED_TYPES } from "./schema";
 
 /** Bump when the prompt or gates change in a way that should invalidate cached generations. */
 export const PROMPT_VERSION = "rubric-cards-1";
 
+/** One worked card shown to the model, to fix the format and the standard of the key points. */
 const EXAMPLE = {
   cards: [
     {
@@ -20,6 +25,7 @@ const EXAMPLE = {
   ],
 };
 
+/** The fixed instructions. Their rules are the ones the gates check afterwards. */
 export const SYSTEM_PROMPT = `You write study questions that test understanding, not recall of trivia.
 Reply with JSON only, matching the schema. Use ONLY the passage you are given.
 
@@ -35,6 +41,7 @@ Do not write questions about dates, names, or lists. If the passage supports few
 Example of one card (for a passage about mitochondria):
 ${JSON.stringify(EXAMPLE)}`;
 
+/** What the per-concept request is built from. */
 export interface PromptInput {
   pageTitle: string;
   conceptTitle: string;
@@ -44,6 +51,10 @@ export interface PromptInput {
   avoid: string[];
 }
 
+/**
+ * The per-concept request: page, topic, passage, the terms other cards already cover, and how many cards to
+ * write.
+ */
 export function buildUserPrompt(i: PromptInput): string {
   const avoid = i.avoid.length ? `\nTerms already covered by other cards (do not write questions whose answer is just one of these): ${i.avoid.slice(0, 20).join("; ")}\n` : "";
   return `Page: ${i.pageTitle}

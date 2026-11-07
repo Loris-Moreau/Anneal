@@ -1,5 +1,13 @@
+/**
+ * fuzzy.ts: typo-tolerant text similarity used by tier 1 grading.
+ */
+
 import { tokenize } from "./normalize";
 
+/**
+ * Edit distance between two strings: the fewest single-character insertions, deletions and substitutions that
+ * turn one into the other.
+ */
 export function levenshtein(a: string, b: string): number {
   if (a === b) return 0;
   if (!a) return b.length;
@@ -16,6 +24,10 @@ export function levenshtein(a: string, b: string): number {
   return prev[b.length]!;
 }
 
+/**
+ * Similarity of two strings from 0 to 1: one minus the edit distance divided by the longer length. 1 means
+ * identical.
+ */
 export function ratio(a: string, b: string): number {
   const m = Math.max(a.length, b.length);
   return m === 0 ? 1 : 1 - levenshtein(a, b) / m;

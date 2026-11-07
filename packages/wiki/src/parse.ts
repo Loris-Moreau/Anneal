@@ -1,3 +1,8 @@
+/**
+ * parse.ts: Wikipedia's Parsoid HTML to a section tree of paragraphs with link, bold and math spans. References,
+ * infoboxes, hatnotes and other non-prose are dropped.
+ */
+
 import { parseHTML } from "linkedom";
 import type { LinkSpan, MathSpan, Paragraph, ParsedPage, Section, Span } from "./types";
 
@@ -6,8 +11,13 @@ const SKIP =
   "style, script, link, meta, figure, table, img, audio, video, sup.mw-ref, sup.reference, .mw-ref, .mw-editsection, " +
   ".hatnote, .navbox, .reflist, .references, .mw-empty-elt, .noprint, .metadata, .infobox, .sidebar, .thumb, .Inline-Template";
 
+/** Wikipedia namespaces whose links are not articles (File:, Category:, Help:, ...). */
 const NAMESPACES = /^(file|image|category|template|help|wikipedia|wp|special|talk|portal|draft|user|module|mediawiki|wikt|commons):/i;
 
+/**
+ * Turns a link's href into the page title it points to (decoded, underscores as spaces). Null for external
+ * links, in-page anchors, red links and non-article namespaces.
+ */
 export function linkTarget(href: string | null): string | null {
   if (!href || href.includes("redlink=1")) return null;
   let t = href.replace(/^https?:\/\/[a-z.]*wikipedia\.org\/wiki\//i, "").replace(/^\.\//, "").replace(/^\/wiki\//, "");
@@ -22,6 +32,7 @@ export function linkTarget(href: string | null): string | null {
   return t && !NAMESPACES.test(t) ? t : null;
 }
 
+/** True for an <a> that points at another Wikipedia page. */
 function isWikiLink(a: Element): boolean {
   const rel = a.getAttribute("rel") ?? "";
   if (rel.includes("mw:ExtLink")) return false;
@@ -29,9 +40,13 @@ function isWikiLink(a: Element): boolean {
   return rel.includes("mw:WikiLink") || href.startsWith("./") || href.startsWith("/wiki/");
 }
 
+/** Unicode superscript characters, in the same order as SUP_FROM. */
 const SUP = "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾ⁿⁱ";
+/** The characters that have a Unicode superscript form. */
 const SUP_FROM = "0123456789+-=()ni";
+/** Unicode subscript characters, in the same order as SUB_FROM. */
 const SUB = "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐₑₒₓₕₖₗₘₙₚₛₜ";
+/** The characters that have a Unicode subscript form. */
 const SUB_FROM = "0123456789+-=()aeoxhklmnpst";
 
 /** CO<sub>2</sub> -> CO₂, m<sup>2</sup> -> m²; anything unmappable becomes ^(...) or _(...). */
@@ -43,6 +58,10 @@ function script(inner: string, up: boolean): string {
   return `${up ? "^" : "_"}(${inner})`;
 }
 
+/**
+ * Reads a math element: the LaTeX (from data-mw, else the MathML alttext, else the annotation) and whether it is
+ * a display equation. Null if the element is not math.
+ */
 function mathOf(el: Element): { latex: string; display: boolean } | null {
   const isMath = el.tagName === "MATH" || el.matches('[typeof~="mw:Extension/math"], .mwe-math-element');
   if (!isMath) return null;
@@ -66,6 +85,11 @@ function mathOf(el: Element): { latex: string; display: boolean } | null {
   return { latex, display: !!display };
 }
 
+/**
+ * Converts one block element into a Paragraph: plain text with link, bold and math spans, skipping references
+ * and other non-prose. Whitespace is collapsed while building, so every span offset is exact. Null for fragments
+ * of fewer than two words.
+ */
 export function buildParagraph(root: Element): Paragraph | null {
   let text = "";
   const links: (Span & { target: string })[] = [];
@@ -127,8 +151,10 @@ export function buildParagraph(root: Element): Paragraph | null {
   return { text, links: finalLinks, bold: clean(bold), math: clean(math) };
 }
 
+/** Matches heading tag names h1 to h6. */
 const HEADING = /^H[1-6]$/;
 
+/** The heading element of a node (a heading itself, or the wrapper Wikipedia puts around one), or null. */
 function headingOf(el: Element): Element | null {
   if (HEADING.test(el.tagName)) return el;
   if (el.tagName === "DIV" && /\bmw-heading\b/.test(el.getAttribute("class") ?? "")) {
@@ -137,6 +163,7 @@ function headingOf(el: Element): Element | null {
   return null;
 }
 
+/** Visible heading text without edit-link markup. */
 function headingText(h: Element): string {
   const hl = h.querySelector(".mw-headline");
   return ((hl ?? h).textContent ?? "").replace(/\[edit\]/gi, "").replace(/\s+/g, " ").trim();
@@ -156,8 +183,13 @@ function blockParagraphs(el: Element): Paragraph[] {
   return out;
 }
 
+/** Anchor fallback for a heading without an id: spaces to underscores. */
 const slug = (s: string) => s.trim().replace(/\s+/g, "_");
 
+/**
+ * Parses Parsoid HTML into sections (lead first) with their paragraphs. Handles the nested <section> layout and
+ * falls back to splitting a flat page on headings.
+ */
 export function parsePage(html: string, meta: { title: string; revision?: string }): ParsedPage {
   const { document } = parseHTML(html);
   const sections: Section[] = [];

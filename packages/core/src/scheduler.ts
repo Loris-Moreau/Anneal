@@ -1,9 +1,18 @@
+/**
+ * scheduler.ts: spaced-repetition scheduling. A thin wrapper over ts-fsrs that keeps learner state in plain
+ * JSON-friendly objects.
+ */
+
 import { createEmptyCard, fsrs, Rating, State, type Card as FsrsCard, type Grade } from "ts-fsrs";
 import type { CardState, ReviewLog } from "./schema";
 
 export { Rating, State };
 export type { Grade as FsrsGrade };
 
+/**
+ * FSRS settings: how much of the material you want to remember at review time, and how far apart reviews may
+ * get.
+ */
 export interface SchedulerOptions {
   requestRetention?: number;
   maximumInterval?: number;
@@ -11,16 +20,19 @@ export interface SchedulerOptions {
   enableFuzz?: boolean;
 }
 
+/** What counts as a stable (well-known) card. */
 export interface StableOptions {
   minStabilityDays?: number;
   minRetrievability?: number;
 }
 
+/** Extra facts recorded with a review. */
 export interface ReviewMeta {
   gradedBy: ReviewLog["gradedBy"];
   durationMs?: number;
 }
 
+/** Converts stored state to the ts-fsrs card shape. */
 const toFsrs = (s: CardState): FsrsCard => ({
   due: new Date(s.due),
   stability: s.stability,
@@ -34,6 +46,7 @@ const toFsrs = (s: CardState): FsrsCard => ({
   last_review: s.lastReview ? new Date(s.lastReview) : undefined,
 });
 
+/** Converts a ts-fsrs card to stored state (ISO dates; the deprecated elapsed_days field is dropped). */
 const fromFsrs = (cardId: string, c: FsrsCard): CardState => {
   const s: CardState = {
     cardId,
@@ -50,6 +63,10 @@ const fromFsrs = (cardId: string, c: FsrsCard): CardState => {
   return s;
 };
 
+/**
+ * Creates a scheduler. It has no hidden state: every function takes the card state and the time explicitly, so
+ * it is deterministic and easy to test.
+ */
 export function createScheduler(opts: SchedulerOptions = {}) {
   const f = fsrs({
     request_retention: opts.requestRetention ?? 0.9,
@@ -87,4 +104,5 @@ export function createScheduler(opts: SchedulerOptions = {}) {
     },
   };
 }
+/** The scheduler object returned by createScheduler. */
 export type Scheduler = ReturnType<typeof createScheduler>;

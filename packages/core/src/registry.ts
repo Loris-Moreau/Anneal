@@ -1,12 +1,20 @@
+/**
+ * registry.ts: publishing and consuming decks through the Anneal-Decks repository: the index, the CI checks, and
+ * the client that browses and downloads decks.
+ */
+
 import { z } from "zod";
 import { DeckMetaSchema, type Card, type Deck } from "./schema";
 import { parseDeckFiles, type DeckFiles } from "./files";
 import { publishIssues, validateDeck } from "./validate";
 import { checkCard } from "./quality";
 
+/** Licenses the public deck repository accepts by default. */
 export const OPEN_LICENSES = ["CC-BY-SA-4.0", "CC-BY-4.0", "CC0-1.0", "Public-Domain"] as const;
+/** The three files every deck folder contains. */
 export const DECK_FILE_NAMES = ["meta.json", "deck.jsonl", "graph.json"] as const;
 
+/** One deck's row in index.json. */
 export const IndexEntrySchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -20,11 +28,16 @@ export const IndexEntrySchema = z.object({
   sha256: z.string(),
   path: z.string(),
 });
+/** One deck's row in index.json. */
 export type IndexEntry = z.infer<typeof IndexEntrySchema>;
+/** The whole index.json: a version and the list of decks. */
 export const DeckIndexSchema = z.object({ version: z.literal(1), decks: z.array(IndexEntrySchema) });
+/** The whole index.json. */
 export type DeckIndex = z.infer<typeof DeckIndexSchema>;
 
+/** Byte length of a string in UTF-8. */
 const utf8 = (s: string) => new TextEncoder().encode(s).length;
+/** Total size in bytes of a deck's three files. */
 export const deckBytes = (f: DeckFiles) => DECK_FILE_NAMES.reduce((n, k) => n + utf8(f[k]), 0);
 
 /** Reads the deck from its files, so the hash is verified before it is indexed. */
@@ -48,6 +61,7 @@ export function buildIndex(entries: readonly IndexEntry[]): DeckIndex {
   return { version: 1, decks: [...entries].sort((a, b) => (a.id < b.id ? -1 : 1)) };
 }
 
+/** Limits for checkDeckFiles. */
 export interface PublishCheckOptions {
   allowedLicenses?: readonly string[];
   maxCards?: number;
@@ -79,22 +93,27 @@ export function checkDeckFiles(dirName: string, files: DeckFiles, opts: PublishC
 
 /* ---------- client side: browse and download decks from the storage repo ---------- */
 
+/** Where a deck repository lives: GitHub owner, repo name, and the tag or commit to read. */
 export interface RegistrySource {
   owner: string;
   repo: string;
   /** Tag or commit SHA. Branch refs are cached by jsDelivr for up to 12 hours: pin to a tag. */
   ref: string;
 }
+/** The fetch function the client helpers use (replaceable in tests). */
 type Fetch = (url: string, init?: { headers?: Record<string, string> }) => Promise<Response>;
 
+/** jsDelivr URL of a file in the deck repository at the given ref. */
 export const cdnUrl = (s: RegistrySource, path: string) => `https://cdn.jsdelivr.net/gh/${s.owner}/${s.repo}@${s.ref}/${path}`;
 
+/** GETs a URL and returns the body text. @throws on a non-2xx status */
 async function getText(f: Fetch, url: string): Promise<string> {
   const res = await f(url);
   if (!res.ok) throw new Error(`GET ${url} failed: HTTP ${res.status}`);
   return res.text();
 }
 
+/** Downloads and validates index.json from the deck repository. */
 export async function fetchIndex(src: RegistrySource, f: Fetch = fetch as Fetch): Promise<DeckIndex> {
   return DeckIndexSchema.parse(JSON.parse(await getText(f, cdnUrl(src, "index.json"))));
 }
@@ -138,7 +157,9 @@ export async function fetchDeck(src: RegistrySource, entry: IndexEntry, f: Fetch
   return deck;
 }
 
+/** Base URL for opening a new issue in the deck repository. */
 const issueBase = (s: Pick<RegistrySource, "owner" | "repo">) => `https://github.com/${s.owner}/${s.repo}/issues/new`;
+/** Encodes an object as a URL query string. */
 const qs = (o: Record<string, string>) => new URLSearchParams(o).toString();
 
 /** Prefilled issue for a wrong card. Field ids match .github/ISSUE_TEMPLATE/card-error.yml in the storage repo. */
@@ -146,6 +167,10 @@ export function flagCardUrl(src: Pick<RegistrySource, "owner" | "repo">, deck: P
   return `${issueBase(src)}?${qs({ template: "card-error.yml", title: `[card] ${deck.id}: ${card.prompt.slice(0, 60)}`, deck: deck.id, card: card.id })}`;
 }
 
+/**
+ * A prefilled GitHub issue asking for a deck of a given page. Field ids match
+ * .github/ISSUE_TEMPLATE/deck-request.yml.
+ */
 export function requestDeckUrl(src: Pick<RegistrySource, "owner" | "repo">, pageTitle: string): string {
   return `${issueBase(src)}?${qs({ template: "deck-request.yml", title: `[deck] ${pageTitle}`, page: pageTitle })}`;
 }

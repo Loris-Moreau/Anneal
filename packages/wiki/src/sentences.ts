@@ -1,11 +1,22 @@
+/**
+ * sentences.ts: splitting a paragraph into sentences without breaking on abbreviations, initials, decimals or
+ * math.
+ */
+
 import type { Paragraph, Sentence } from "./types";
 import { slice } from "./spans";
 
+/** Abbreviations whose final period does not end a sentence. */
 const ABBREV = new Set([
   "e.g.", "i.e.", "vs.", "etc.", "fig.", "figs.", "eq.", "eqs.", "dr.", "mr.", "mrs.", "ms.", "prof.", "st.", "no.", "nos.",
   "ca.", "c.", "cf.", "approx.", "inc.", "ltd.", "jr.", "sr.", "u.s.", "u.k.", "al.", "ed.", "vol.", "pp.",
 ]);
 
+/**
+ * Splits a paragraph into sentences, rebasing every span into its sentence. A period ends a sentence only when
+ * followed by a space and a capital letter, digit, quote or bracket; not inside math, after a known
+ * abbreviation, or after a capital initial.
+ */
 export function splitSentences(p: Paragraph): Sentence[] {
   const inMath = (i: number) => p.math.some((m) => i >= m.start && i < m.end);
   const out: Sentence[] = [];

@@ -1,3 +1,8 @@
+/**
+ * calibrate.ts: the `anneal calibrate` command: score a labeled dataset with a scorer, search thresholds, and
+ * write the report.
+ */
+
 import { parseArgs } from "node:util";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -7,11 +12,13 @@ import {
 } from "@anneal/scorer";
 import { at } from "./util";
 
+/** Help text of the calibrate command. */
 export const CALIBRATE_USAGE = `  anneal calibrate run [--data calibration/starter.json] [--scorer local|lexical] [--embed-model ID] [--nli-model ID]
                        [--pooling cls|mean] [--premise answer|qa] [--out calibration/out] [--max-false-accept 0.02] [--max-false-reject 0.1] [--min-coverage 0.05] [--max-misgrade 0.1] [--strict]
   anneal calibrate sweep --scores calibration/out/scores.json [--data ...] [--max-false-accept ...]   (no models needed)
     "local" needs: pnpm --filter @anneal/scorer add @huggingface/transformers`;
 
+/** Accepted command-line options. */
 const opts = {
   data: { type: "string", default: "calibration/starter.json" },
   scorer: { type: "string", default: "local" },
@@ -28,6 +35,10 @@ const opts = {
   premise: { type: "string", default: "answer" },
 } as const;
 
+/**
+ * Runs `calibrate run` (score then sweep) or `calibrate sweep` (sweep cached scores, no models). Returns the
+ * process exit code: 0, or 1 with --strict when no setting is usable.
+ */
 export async function runCalibrate(argv: string[]): Promise<number> {
   const [sub, ...rest] = argv;
   if (sub !== "run" && sub !== "sweep") {

@@ -1,12 +1,23 @@
+/**
+ * candidates.ts: finding card candidates in a page: definition and genus clozes, link clozes from explanatory
+ * sentences, and formula cards. Every candidate carries the sentence it came from, so it can be checked and
+ * attributed.
+ */
+
 import { canonical, canonicalLatex } from "@anneal/core";
 import type { Definition } from "./definitions";
 import type { LinkSpan, Paragraph, Section, Sentence, Span } from "./types";
 import { splitSentences } from "./sentences";
 import { stripParentheticals } from "./spans";
 
+/** The marker that replaces the answer in a cloze prompt. */
 export const BLANK = "[...]";
 
+/**
+ * Where a candidate came from: the defining sentence, its genus, an explanatory sentence's link, or a formula.
+ */
 export type CandidateKind = "definition" | "genus" | "link" | "formula";
+/** A possible card, before it is gated and assembled into the deck. */
 export interface Candidate {
   kind: CandidateKind;
   format: "text" | "latex";
@@ -20,11 +31,15 @@ export interface Candidate {
   section: Section;
   score: number;
 }
+/**
+ * A sentence that did not become a card, with the reason. Kept in the report so the heuristics can be tuned.
+ */
 export interface Rejection {
   reason: string;
   text: string;
 }
 
+/** Escapes text for use inside a regular expression. */
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 /** Replace the given spans, then every other whole-word occurrence of the answer texts, with the blank marker. */
@@ -36,6 +51,7 @@ export function blank(s: Sentence, spans: readonly Span[], texts: readonly strin
   return out.replace(/(\[\.\.\.\]\s*){2,}/g, `${BLANK} `).trim();
 }
 
+/** Candidates from the defining sentence: the term itself, and (when it is informative) the genus link. */
 export function definitionCandidates(def: Definition, lead: Section): Candidate[] {
   const out: Candidate[] = [];
   const s = def.sentence;
@@ -66,6 +82,10 @@ export function definitionCandidates(def: Definition, lead: Section): Candidate[
   return out;
 }
 
+/**
+ * Verbs and patterns that mark a sentence as explanatory ("is a", "causes", "consists of", ...). Biased toward
+ * science prose by design: pages without such sentences yield few cards.
+ */
 const REL = new RegExp(
   "\\b(?:is|are)\\s+(?:a|an|the|called|known as|used (?:to|for|in)|responsible for|composed of|made of|defined as|caused by|equal to|proportional to)\\b|" +
     "\\b(?:consists?|consisting) of\\b|" +
@@ -73,9 +93,12 @@ const REL = new RegExp(
     "regulates?|generates?|contains?|forms?|stores?|releases?|binds?|breaks? down|increases?|decreases?|measures?|describes?|represents?|equals?)\\b",
   "i",
 );
+/** Month names, used to recognise date-like link targets. */
 const MONTHS = /^(january|february|march|april|may|june|july|august|september|october|november|december)\b/i;
 
+/** Sentence openers that refer back to earlier text ("Such", "This", "However", ...). */
 const CONTEXT_START = /^(?:such|this|these|that|those|it|its|they|their|he|she|his|her|here|however|thus|therefore|hence|moreover|furthermore|additionally|also|nevertheless|consequently|similarly|likewise|meanwhile|subsequently|conversely|finally|in other|other|in addition|as a result|for example|for instance)\b/i;
+/** Words that point outside the sentence: this/these, he/she, above/below, "the same". */
 const DEICTIC = /\b(?:this|these|those|he|she|him|his|her|above|below)\b|\bthe (?:same|other)\b/i;
 /** "φ is the argument of z..." defines a symbol from the formula before it. */
 const SYMBOL_START = /^\p{L}\s+(?:is|are|and|denotes?)\b/u;
@@ -93,6 +116,9 @@ const GENERIC_ANSWERS = new Set([
   "part", "parts", "structure", "structures", "function", "functions", "property", "properties", "model", "models", "light",
 ]);
 
+/**
+ * False for link targets that are not concepts: the page itself, years, months, lists, disambiguation pages.
+ */
 export function isConceptTarget(target: string, title: string): boolean {
   return (
     canonical(target) !== canonical(title) &&
@@ -103,6 +129,7 @@ export function isConceptTarget(target: string, title: string): boolean {
   );
 }
 
+/** Page-wide facts used to choose cloze answers. */
 export interface LinkContext {
   title: string;
   /** Lowercase words seen in the page prose (plus the title's words): anything else capitalized is a proper name. */
@@ -156,6 +183,10 @@ function pickLinks(s: Sentence, ctx: LinkContext): LinkSpan[] {
   return ok.slice(0, 2);
 }
 
+/**
+ * Candidates from one section: for each explanatory, self-contained sentence, up to two of its links as cloze
+ * answers. Sentences that were not used are recorded in `rejected` with the reason.
+ */
 export function linkCandidates(section: Section, ctx: LinkContext, skip: ReadonlySet<string>, rejected: Rejection[]): Candidate[] {
   const out: Candidate[] = [];
   for (const para of section.paragraphs) {
@@ -206,6 +237,10 @@ export function splitEquation(raw: string): { lhs: string; rhs: string } | null 
   }
   return eq === -1 ? null : fin(latex.slice(0, eq), latex.slice(eq + 1));
 }
+/**
+ * Applies size and content limits to the two sides of a formula; null for formulas not worth memorizing (huge,
+ * purely numeric, matrices, sums, worked examples).
+ */
 function fin(lhs: string, rhs: string) {
   const l = lhs.trim();
   const r = rhs.trim();
@@ -248,4 +283,5 @@ export function formulaCandidates(section: Section, title: string): Candidate[] 
   return out;
 }
 
+/** True when two LaTeX strings are the same formula after normalization. */
 export const sameFormula = (a: string, b: string) => canonicalLatex(a) === canonicalLatex(b);

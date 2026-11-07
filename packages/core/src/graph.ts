@@ -1,6 +1,15 @@
+/**
+ * graph.ts: the prerequisite graph of concepts: cycle detection, learning order, and the study queue that
+ * unlocks new material only when its prerequisites are known.
+ */
+
 import type { Card, CardState, Concept } from "./schema";
 import { State, type Scheduler, type StableOptions } from "./scheduler";
 
+/**
+ * Finds a cycle in the prerequisite graph. Returns the cycle as a list of concept ids that starts and ends on
+ * the same id, or null if there is none.
+ */
 export function findCycle(concepts: readonly Concept[]): string[] | null {
   const byId = new Map(concepts.map((c) => [c.id, c]));
   const color = new Map<string, 1 | 2>();
@@ -41,6 +50,7 @@ export function topoRank(concepts: readonly Concept[]): Map<string, number> {
   return rank;
 }
 
+/** What it takes for a concept to count as known. */
 export interface GateOptions extends StableOptions {
   /** Share of a concept's cards that must be stable for the concept to count as known. */
   minStableFraction?: number;
@@ -69,6 +79,9 @@ export function stableConcepts(
   return out;
 }
 
+/**
+ * Everything buildQueue needs: the deck's content, the learner's card states, the scheduler, the current time.
+ */
 export interface QueueInput extends GateOptions {
   concepts: readonly Concept[];
   cards: readonly Card[];
@@ -78,6 +91,10 @@ export interface QueueInput extends GateOptions {
   newLimit?: number;
 }
 
+/**
+ * What to study now: reviews that are due, new cards from unlocked concepts, and the concepts still locked
+ * behind unmet prerequisites.
+ */
 export interface Queue {
   due: Card[];
   fresh: Card[];

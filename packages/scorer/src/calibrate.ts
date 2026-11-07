@@ -1,8 +1,17 @@
+/**
+ * calibrate.ts: the calibration harness. Measures how well a scorer agrees with human labels, and searches for
+ * the tier 2 settings that settle the most answers without giving unearned credit.
+ */
+
 import { z } from "zod";
 import { gradeTier2, TIER2_DEFAULTS, type Card, type KeyPointScore, type KeyPointScorer, type Tier2Config, type Verdict } from "@anneal/core";
 
 /* ---------- dataset ---------- */
 
+/**
+ * One labeled answer: the question, the reference answer, the rubric, the learner's answer, and for each rubric
+ * point whether a human judged it covered.
+ */
 export const CalibrationItemSchema = z
   .object({
     id: z.string().min(1),
@@ -16,8 +25,13 @@ export const CalibrationItemSchema = z
     tag: z.string().optional(),
   })
   .refine((i) => i.covered.length === i.rubric.length, { message: "covered needs one entry per rubric point" });
+/** A validated labeled answer. */
 export type CalibrationItem = z.infer<typeof CalibrationItemSchema>;
 
+/**
+ * The compact authoring format (calibration/starter.json): cards, each with several answer variants and their
+ * labels.
+ */
 const StarterSchema = z.object({
   source: z.enum(["human", "authored", "synthetic"]).default("authored"),
   cards: z.array(
@@ -63,8 +77,16 @@ export function truthVerdict(covered: readonly boolean[]): Exclude<Verdict, "unc
 
 /* ---------- scoring (the only step that needs models) ---------- */
 
+/**
+ * A scorer's output for every item, by item id. Cached to disk so thresholds can be re-searched without running
+ * models.
+ */
 export type ScoreTable = Record<string, KeyPointScore[]>;
 
+/**
+ * Runs a scorer over every item, one at a time (models are slow and memory-hungry, so no concurrency), reporting
+ * progress.
+ */
 export async function scoreItems(items: readonly CalibrationItem[], scorer: KeyPointScorer, onProgress?: (done: number, total: number) => void): Promise<ScoreTable> {
   const table: ScoreTable = {};
   let done = 0;
@@ -77,10 +99,12 @@ export async function scoreItems(items: readonly CalibrationItem[], scorer: KeyP
 
 /* ---------- evaluation ---------- */
 
+/** Wraps an item as a card so the real tier 2 policy can be applied to it unchanged. */
 const asCard = (it: CalibrationItem): Card => ({
   id: it.id, conceptId: "x", type: "why_how", format: "text", prompt: it.prompt, answer: it.reference, aliases: [], rubric: it.rubric,
 });
 
+/** How one threshold setting performs against the human labels. */
 export interface Metrics {
   cfg: Tier2Config;
   n: number;
@@ -101,6 +125,9 @@ export interface Metrics {
   recall: number;
 }
 
+/**
+ * Applies the real tier 2 policy with the given settings to every item and compares with the human verdicts.
+ */
 export async function evaluate(items: readonly CalibrationItem[], table: ScoreTable, cfg: Tier2Config): Promise<Metrics> {
   let decided = 0, wrong = 0, fa = 0, fr = 0, nonCorrect = 0, correct = 0, tp = 0;
   for (const it of items) {
@@ -124,6 +151,7 @@ export async function evaluate(items: readonly CalibrationItem[], table: ScoreTa
   };
 }
 
+/** What a setting must satisfy to be considered usable. */
 export interface Constraints {
   maxFalseAccept: number;
   maxFalseReject: number;
@@ -132,10 +160,18 @@ export interface Constraints {
   /** Settled verdicts that disagree with the human verdict (e.g. "incorrect" for a partial answer give wrong feedback). Default 0.1. */
   maxMisgrade?: number;
 }
+/**
+ * Starting constraints: at most 2% unearned credit, 10% wrongly downgraded, 10% misgraded, and at least 5% of
+ * answers settled locally.
+ */
 export const DEFAULT_CONSTRAINTS: Constraints = { maxFalseAccept: 0.02, maxFalseReject: 0.1, minCoverage: 0.05, maxMisgrade: 0.1 };
 
+/** Inclusive list from a to b in the given step, rounded to two decimals. */
 const range = (a: number, b: number, step: number) => Array.from({ length: Math.round((b - a) / step) + 1 }, (_, i) => Math.round((a + i * step) * 100) / 100);
 
+/**
+ * Every setting tried, those within the constraints, the best of them, and (if none qualify) the closest.
+ */
 export interface SweepResult {
   all: Metrics[];
   feasible: Metrics[];
@@ -145,6 +181,11 @@ export interface SweepResult {
   closest: Metrics[];
 }
 
+/**
+ * Tries a grid of settings in both modes (symmetric and confirm-only) and picks the one that settles the most
+ * answers while meeting every constraint. Returns best = null when nothing qualifies: the scorer is not usable
+ * yet.
+ */
 export async function sweep(items: readonly CalibrationItem[], table: ScoreTable, constraints: Constraints = DEFAULT_CONSTRAINTS): Promise<SweepResult> {
   const all: Metrics[] = [];
   // NLI probabilities for true paraphrases are often well below 0.5, so the grid must reach low thresholds.
@@ -181,6 +222,10 @@ export function auc(pos: readonly number[], neg: readonly number[]): number {
   return wins / (pos.length * neg.length);
 }
 
+/**
+ * Threshold-free diagnostics: how well support separates covered from uncovered points (AUC), mean support of
+ * each, and the same per raw component the scorer recorded.
+ */
 export function pointSeparation(items: readonly CalibrationItem[], table: ScoreTable) {
   const pos: number[] = [], neg: number[] = [], negContra: number[] = [], posContra: number[] = [];
   for (const it of items)
@@ -204,6 +249,7 @@ export function pointSeparation(items: readonly CalibrationItem[], table: ScoreT
 
 /* ---------- report ---------- */
 
+/** Formats a fraction as a percentage with one decimal. */
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`;
 /** Wilson 95% upper bound on an error rate: what the data cannot rule out. */
 export const wilsonUpper = (k: number, n: number): number => {
@@ -212,12 +258,16 @@ export const wilsonUpper = (k: number, n: number): number => {
   return (p + (z * z) / (2 * n) + z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n))) / d;
 };
 
+/** One line describing a setting and its metrics. */
 const fmt = (m: Metrics) =>
   `${m.cfg.confirmOnly ? "confirm-only: " : ""}covered>=${m.cfg.covered}${m.cfg.confirmOnly ? "" : ` missed<${m.cfg.missed}`} contradiction>=${m.cfg.contradiction > 1 ? "off" : m.cfg.contradiction}  ` +
   `settled ${pct(m.coverage)} (${m.decided}/${m.n})  confirms ${pct(m.recall)} of correct answers  ` +
   `false-accept ${pct(m.falseAccept)} (${m.falseAcceptCount}/${m.nonCorrect}, could be up to ${pct(wilsonUpper(m.falseAcceptCount, m.nonCorrect))})  ` +
   `false-reject ${pct(m.falseReject)} (${m.falseRejectCount}/${m.correct})  misgraded ${pct(m.misgrade)}`;
 
+/**
+ * The human-readable calibration report, with warnings when the data is too small or not written by humans.
+ */
 export function formatReport(items: readonly CalibrationItem[], table: ScoreTable, result: SweepResult, constraints: Constraints, label = ""): string {
   const sep = pointSeparation(items, table);
   const bySource = items.reduce<Record<string, number>>((o, i) => ({ ...o, [i.source]: (o[i.source] ?? 0) + 1 }), {});
@@ -242,5 +292,6 @@ export function formatReport(items: readonly CalibrationItem[], table: ScoreTabl
   return lines.join("\n");
 }
 
+/** The thresholds.json content: the chosen tier 2 settings and how they measured. */
 export const thresholdsFile = (m: Metrics) => JSON.stringify({ tier2: m.cfg, measured: { settled: m.coverage, falseAccept: m.falseAccept, falseReject: m.falseReject, n: m.n } }, null, 2) + "\n";
 export { TIER2_DEFAULTS };

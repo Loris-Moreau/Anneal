@@ -1,10 +1,16 @@
+/**
+ * enrich.ts: adding understanding cards (why/how, compare, predict, derive) with rubric key points to a deck,
+ * one model call per concept, within a budget.
+ */
+
 import { canonical, stableId, type Card, type Deck } from "@anneal/core";
-import type { ChatClient } from "./client";
+import { CancelledError, type ChatClient } from "./client";
 import type { LlmCache } from "./cache";
 import { contentWords } from "./gates";
 import { generateRawCards, type Rejected } from "./generate";
 import { buildUserPrompt, estimateTokens, PROMPT_VERSION, SYSTEM_PROMPT } from "./prompt";
 
+/** Options of enrichDeck: where passages come from, limits, cache, progress and cancellation. */
 export interface EnrichOptions {
   pageTitle: string;
   /** Source text for a concept, or null when there is none. The caller decides what counts as the concept's passage. */
@@ -16,8 +22,11 @@ export interface EnrichOptions {
   maxPassageWords?: number;
   cache?: LlmCache;
   onProgress?(message: string): void;
+  /** Checked before each concept and passed to the model call. Aborting throws CancelledError; finished concepts stay in the cache. */
+  signal?: AbortSignal;
 }
 
+/** What happened to one concept. */
 export interface ConceptReport {
   id: string;
   status: "generated" | "cached" | "skipped" | "error" | "planned";
@@ -27,6 +36,7 @@ export interface ConceptReport {
   estimatedTokens: number;
   note?: string;
 }
+/** What a run did: per-concept results, totals, and (dry run only) the prompts. */
 export interface EnrichReport {
   concepts: ConceptReport[];
   added: number;
@@ -37,6 +47,7 @@ export interface EnrichReport {
   prompts: { conceptId: string; system: string; user: string }[];
 }
 
+/** Overlap of two word lists: shared words divided by all distinct words. */
 const jaccard = (a: string[], b: string[]) => {
   const A = new Set(a), B = new Set(b);
   let both = 0;
@@ -71,6 +82,7 @@ export async function enrichDeck(deck: Deck, client: ChatClient | null, o: Enric
   let attempted = 0;
 
   for (const concept of deck.concepts) {
+    if (o.signal?.aborted) throw new CancelledError();
     const entry: ConceptReport = { id: concept.id, status: "skipped", added: 0, rejected: [], passageWords: 0, estimatedTokens: 0 };
     report.concepts.push(entry);
     const raw = o.passagesFor(concept.id);
@@ -96,7 +108,7 @@ export async function enrichDeck(deck: Deck, client: ChatClient | null, o: Enric
       continue;
     }
     o.onProgress?.(`generating for ${concept.id} (${entry.passageWords} words)`);
-    const res = await generateRawCards(input, { client, ...(o.cache ? { cache: o.cache } : {}) });
+    const res = await generateRawCards(input, { client, ...(o.cache ? { cache: o.cache } : {}), ...(o.signal ? { signal: o.signal } : {}) });
     entry.rejected = res.rejected;
     if (res.error) {
       entry.status = "error";

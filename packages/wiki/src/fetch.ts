@@ -1,5 +1,13 @@
+/**
+ * fetch.ts: downloading a Wikipedia page (HTML and revision id).
+ */
+
+/**
+ * Used when the caller gives no User-Agent. Wikimedia asks clients to identify themselves with a contact URL.
+ */
 const DEFAULT_UA = "Anneal/0.0 (deck generator; set ANNEAL_USER_AGENT with a contact URL)";
 
+/** A downloaded page: its HTML, canonical title, and revision id when known. */
 export interface FetchedPage {
   html: string;
   title: string;

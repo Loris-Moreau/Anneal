@@ -1,9 +1,18 @@
+/**
+ * validate.ts: structural checks on a deck, and the extra checks that apply only when publishing to the public
+ * deck repository.
+ */
+
 import type { Deck } from "./schema";
 import { findCycle } from "./graph";
 
 /** Namespaced ids ("wiki:Energy") are global concept ids and may reference concepts outside this deck. */
 export const isGlobalConceptId = (id: string): boolean => /^[a-z]+:/.test(id);
 
+/**
+ * Checks a deck's structure: unique ids, cards that point at real concepts, prerequisites that exist (or are
+ * namespaced ids from other decks), and no prerequisite cycle. Returns the problems found; empty means valid.
+ */
 export function validateDeck(deck: Deck): string[] {
   const issues: string[] = [];
   const concepts = new Set<string>();

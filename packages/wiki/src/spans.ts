@@ -1,3 +1,8 @@
+/**
+ * spans.ts: helpers for the span model of a paragraph: slicing, and removing ranges (such as parentheticals)
+ * while keeping link, bold and math offsets correct.
+ */
+
 import type { Paragraph, Span } from "./types";
 
 /** Slice a paragraph to [start, end), keeping only spans fully inside and rebasing their offsets. */
