@@ -11,10 +11,12 @@ interface Props {
   id: string;
   onBack: () => void;
   openExternal: (url: string) => void;
+  /** Called after practice results changed, so the library's score column reloads. */
+  onScoresChanged?: () => void;
 }
 
 /** Header (title, health, license, model) plus the deck's cards, concepts and info. */
-export function DeckViewer({ api, id, onBack, openExternal }: Props) {
+export function DeckViewer({ api, id, onBack, openExternal, onScoresChanged }: Props) {
   const view = useAsync(() => api.loadDeck(id), [api, id]);
   return (
     <>
@@ -32,7 +34,7 @@ export function DeckViewer({ api, id, onBack, openExternal }: Props) {
             {view.data.deck.meta.generation && <Badge tone="info">model: {view.data.deck.meta.generation.model}</Badge>}
             {sourceUrl(view.data.deck) && <button onClick={() => openExternal(sourceUrl(view.data!.deck)!)}>Open Wikipedia page</button>}
           </header>
-          <DeckBody deck={view.data.deck} issues={view.data.issues} openExternal={openExternal} />
+          <DeckBody deck={view.data.deck} issues={view.data.issues} openExternal={openExternal} hideAnswers practice={{ api, onScoresChanged }} />
         </>
       )}
     </>

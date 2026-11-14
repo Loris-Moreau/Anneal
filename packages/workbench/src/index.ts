@@ -7,5 +7,6 @@ export * from "./wikipedia";
 export * from "./git";
 export * from "./settings";
 export * from "./generate";
+export * from "./scoring";
 export * from "./service";
 export * from "./dispatch";

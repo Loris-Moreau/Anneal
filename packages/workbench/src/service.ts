@@ -6,15 +6,17 @@
  * under plain Node.
  */
 import { randomUUID } from "node:crypto";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { fetchPage } from "@anneal/wiki";
 import { CancelledError, createChatClient, type ChatClient } from "@anneal/llm";
 import type { LlmConfig } from "@anneal/llm";
+import type { KeyPointScorer } from "@anneal/core";
 import { cardIssuesOf, DraftStore, type Draft } from "./drafts";
 import { Generator } from "./generate";
 import { gitStatus, nodeGit, type GitRunner } from "./git";
 import { listPublished, loadPublished, repoHasDecksFolder, validateAll } from "./library";
 import { previewPublish, publishDraft } from "./publish";
+import { ScoreStore, ScoringService } from "./scoring";
 import type { SettingsService } from "./settings";
 import type { DraftView, GitStatus, JobEvent, LlmTestResult, WorkbenchApi } from "./shared";
 import { searchTitles } from "./wikipedia";
@@ -34,6 +36,12 @@ export interface WorkbenchDeps {
   createClient?: (config: LlmConfig) => ChatClient;
   /** Job id generator. */
   newId?: () => string;
+  /** Folder of the per-deck practice results. Defaults to a `scores` folder next to the drafts. */
+  scoresDir?: string;
+  /** Folder where the local scoring models are downloaded. */
+  modelsDir?: string;
+  /** Loads the local rubric scorer; replaceable in tests. */
+  localScorer?: () => Promise<KeyPointScorer>;
 }
 
 /** The workbench and its event stream. */
@@ -74,6 +82,15 @@ export function createWorkbench(deps: WorkbenchDeps): Workbench {
       const s = await deps.settings.view();
       return { maxConcepts: s.maxConcepts, cardsPerConcept: s.cardsPerConcept };
     },
+  });
+
+  const scoring = new ScoringService({
+    store: new ScoreStore(deps.scoresDir ?? join(dirname(deps.draftsDir), "scores")),
+    settings: deps.settings,
+    repo: requireRepo,
+    createClient: makeClient,
+    ...(deps.modelsDir ? { modelsDir: deps.modelsDir } : {}),
+    ...(deps.localScorer ? { localScorer: deps.localScorer } : {}),
   });
 
   /** The one running generation, if any. */
@@ -162,6 +179,12 @@ export function createWorkbench(deps: WorkbenchDeps): Workbench {
     async validateRepo() {
       return validateAll(await requireRepo());
     },
+
+    checkAnswer: (deckId, cardId, answer) => scoring.checkAnswer(deckId, cardId, answer),
+    rateAnswer: (deckId, cardId, verdict, attemptId) => scoring.rateAnswer(deckId, cardId, verdict, attemptId),
+    getScores: (deckId) => scoring.getScores(deckId),
+    listScores: () => scoring.listScores(),
+    resetScores: (deckId) => scoring.resetScores(deckId),
   };
 
   return {
@@ -173,5 +196,11 @@ export function createWorkbench(deps: WorkbenchDeps): Workbench {
   };
 }
 
-/** Default folders under an app-data directory: drafts and the model cache. */
-export const dataFolders = (userData: string) => ({ draftsDir: join(userData, "drafts"), llmCacheDir: join(userData, "llm-cache"), settingsFile: join(userData, "settings.json") });
+/** Default folders under an app-data directory: drafts, scores, and the caches. */
+export const dataFolders = (userData: string) => ({
+  draftsDir: join(userData, "drafts"),
+  llmCacheDir: join(userData, "llm-cache"),
+  settingsFile: join(userData, "settings.json"),
+  scoresDir: join(userData, "scores"),
+  modelsDir: join(userData, "models"),
+});

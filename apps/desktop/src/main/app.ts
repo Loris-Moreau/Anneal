@@ -86,7 +86,7 @@ export async function startApp(electron: ElectronLike, cfg: AppConfig): Promise<
   const userData = app.getPath("userData");
   const folders = dataFolders(userData);
   const settings = new SettingsService(folders.settingsFile, createSafeStorageSecrets(safeStorage, join(userData, "secrets")), cfg.env);
-  const workbench = createWorkbench({ settings, draftsDir: folders.draftsDir, llmCacheDir: folders.llmCacheDir });
+  const workbench = createWorkbench({ settings, draftsDir: folders.draftsDir, llmCacheDir: folders.llmCacheDir, scoresDir: folders.scoresDir, modelsDir: folders.modelsDir });
   const dispatch = createDispatcher(workbench.api);
 
   /** IPC messages are accepted only from the app's own page, never from a frame that navigated elsewhere. */

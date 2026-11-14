@@ -20,14 +20,19 @@ interface Props {
   openExternal: (url: string) => void;
   /** Disables the review buttons while a change is being saved. */
   busy?: boolean;
+  /** Start with answers hidden: the answer, accepted aliases, key points and source excerpt show only after a click. */
+  hideAnswers?: boolean;
 }
 
 /** Badge colour of each review status. */
 const STATUS_TONE = { pending: "warn", approved: "good", rejected: "bad" } as const;
 
 /** The card table with its filter bar, bulk actions, and the detail pane. */
-export function CardBrowser({ deck, review, cardIssues = {}, onSetReview, onEdit, openExternal, busy }: Props) {
+export function CardBrowser({ deck, review, cardIssues = {}, onSetReview, onEdit, openExternal, busy, hideAnswers = false }: Props) {
   const [filter, setFilter] = useState<CardFilter>({});
+  const [hide, setHide] = useState(hideAnswers);
+  /** Cards whose answer was revealed by a click. Cleared whenever hiding is switched on again. */
+  const [revealed, setRevealed] = useState<ReadonlySet<string>>(new Set());
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const visible = useMemo(() => filterCards(deck.cards, filter, review), [deck.cards, filter, review]);
   const types = useMemo(() => [...new Set(deck.cards.map((c) => c.type))], [deck.cards]);
@@ -35,6 +40,8 @@ export function CardBrowser({ deck, review, cardIssues = {}, onSetReview, onEdit
   const selected = deck.cards.find((c) => c.id === selectedId) ?? null;
   const set = (patch: Partial<CardFilter>) => setFilter((f) => ({ ...f, ...patch }));
   const stateOf = (c: Card): ReviewState => review?.[c.id] ?? defaultReview(c);
+  /** Everything that gives the answer away stays hidden until the card is clicked open. */
+  const answerHidden = hide && selected !== null && !revealed.has(selected.id);
 
   return (
     <div className="browser">
@@ -58,6 +65,17 @@ export function CardBrowser({ deck, review, cardIssues = {}, onSetReview, onEdit
         </select>
         <label>
           <input type="checkbox" checked={!!filter.llmOnly} onChange={(e) => set({ llmOnly: e.target.checked })} /> Model cards only
+        </label>
+        <label>
+          <input
+            type="checkbox"
+            checked={hide}
+            onChange={(e) => {
+              setHide(e.target.checked);
+              setRevealed(new Set());
+            }}
+          />{" "}
+          Hide answers
         </label>
         {review && (
           <select aria-label="Review status" value={filter.status ?? ""} onChange={(e) => set({ status: (e.target.value || undefined) as ReviewStatus | undefined })}>
@@ -112,27 +130,49 @@ export function CardBrowser({ deck, review, cardIssues = {}, onSetReview, onEdit
               </p>
               <h4>Prompt</h4>
               <p>{selected.prompt}</p>
-              <h4>Answer</h4>
-              <p className={selected.format === "latex" ? "mono" : undefined}>{selected.answer}</p>
-              {selected.aliases.length > 0 && <p className="small">Also accepted: {selected.aliases.join(", ")}</p>}
-              {selected.rubric.length > 0 && (
+              {answerHidden ? (
+                <button className="reveal" onClick={() => setRevealed((r) => new Set(r).add(selected.id))}>
+                  Click to show the answer
+                </button>
+              ) : (
                 <>
-                  <h4>Key points</h4>
-                  <ol>
-                    {selected.rubric.map((k) => (
-                      <li key={k}>{k}</li>
-                    ))}
-                  </ol>
-                </>
-              )}
-              {selected.source && (
-                <>
-                  <h4>Source</h4>
-                  <p className="small">
-                    {selected.source.locator}
-                    {selected.source.excerpt ? <q className="excerpt">{selected.source.excerpt}</q> : null}
-                  </p>
-                  {sourceUrl(deck) && <button onClick={() => openExternal(sourceUrl(deck)!)}>Open the source page</button>}
+                  <h4>Answer</h4>
+                  <p className={selected.format === "latex" ? "mono" : undefined}>{selected.answer}</p>
+                  {selected.aliases.length > 0 && <p className="small">Also accepted: {selected.aliases.join(", ")}</p>}
+                  {selected.rubric.length > 0 && (
+                    <>
+                      <h4>Key points</h4>
+                      <ol>
+                        {selected.rubric.map((k) => (
+                          <li key={k}>{k}</li>
+                        ))}
+                      </ol>
+                    </>
+                  )}
+                  {selected.source && (
+                    <>
+                      <h4>Source</h4>
+                      <p className="small">
+                        {selected.source.locator}
+                        {selected.source.excerpt ? <q className="excerpt">{selected.source.excerpt}</q> : null}
+                      </p>
+                      {sourceUrl(deck) && <button onClick={() => openExternal(sourceUrl(deck)!)}>Open the source page</button>}
+                    </>
+                  )}
+                  {hide && (
+                    <button
+                      className="link"
+                      onClick={() =>
+                        setRevealed((r) => {
+                          const next = new Set(r);
+                          next.delete(selected.id);
+                          return next;
+                        })
+                      }
+                    >
+                      Hide the answer again
+                    </button>
+                  )}
                 </>
               )}
               {cardIssues[selected.id] && (

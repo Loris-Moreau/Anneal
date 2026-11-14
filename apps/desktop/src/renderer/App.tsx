@@ -48,7 +48,7 @@ export function App({ api, bridge, searchDelay }: Props) {
       </nav>
       <main>
         {view.kind === "library" && <Library api={api} refreshKey={refreshKey} onOpen={(id) => setView({ kind: "deck", id })} onOpenSettings={() => setView({ kind: "settings" })} />}
-        {view.kind === "deck" && <DeckViewer api={api} id={view.id} onBack={() => setView({ kind: "library" })} openExternal={openExternal} />}
+        {view.kind === "deck" && <DeckViewer api={api} id={view.id} onBack={() => setView({ kind: "library" })} openExternal={openExternal} onScoresChanged={refresh} />}
         {view.kind === "generate" && (
           <Generate api={api} bridge={bridge} onOpenDraft={(id) => setView({ kind: "draft", id })} onOpenSettings={() => setView({ kind: "settings" })} {...(searchDelay !== undefined ? { searchDelay } : {})} />
         )}

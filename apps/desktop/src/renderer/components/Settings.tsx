@@ -38,6 +38,10 @@ function SettingsForm({ initial, api, bridge, onSaved }: Props & { initial: Sett
   const [jsonMode, setJsonMode] = useState(initial.llm.jsonMode);
   const [effort, setEffort] = useState(initial.llm.reasoningEffort);
   const [temperature, setTemperature] = useState(initial.llm.temperature === null ? "" : String(initial.llm.temperature));
+  const [localModels, setLocalModels] = useState(initial.scoring.localModels);
+  const [llmJudge, setLlmJudge] = useState(initial.scoring.llmJudge);
+  const [covered, setCovered] = useState(String(initial.scoring.coveredThreshold));
+  const [contradiction, setContradiction] = useState(String(initial.scoring.contradictionThreshold));
   const [apiKey, setApiKey] = useState("");
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null);
   const [test, setTest] = useState<LlmTestResult | null>(null);
@@ -62,6 +66,7 @@ function SettingsForm({ initial, api, bridge, onSaved }: Props & { initial: Sett
       maxConcepts: Number(maxConcepts),
       cardsPerConcept: Number(cardsPerConcept),
       llm: { baseUrl, model, rpm: Number(rpm), jsonMode, reasoningEffort: effort, temperature: temperature.trim() === "" ? null : Number(temperature) },
+      scoring: { localModels, llmJudge, coveredThreshold: Number(covered), contradictionThreshold: Number(contradiction) },
       ...(apiKey ? { apiKey } : {}),
     });
 
@@ -108,6 +113,25 @@ function SettingsForm({ initial, api, bridge, onSaved }: Props & { initial: Sett
           <label>
             Cards per concept
             <input value={cardsPerConcept} inputMode="numeric" onChange={(e) => setCardsPerConcept(e.target.value)} />
+          </label>
+        </div>
+
+        <h3>Scoring answers (Practice tab)</h3>
+        <p className="small muted">Answers are checked in this order: string match, then the local models (if on), then the LLM judge (if on). Anything still unsettled is rated by you.</p>
+        <label className="inline">
+          <input type="checkbox" checked={llmJudge} onChange={(e) => setLlmJudge(e.target.checked)} /> Let the LLM judge answers the other checks cannot settle (uses the model connection below)
+        </label>
+        <label className="inline">
+          <input type="checkbox" checked={localModels} onChange={(e) => setLocalModels(e.target.checked)} /> Use local models for explanation cards (only when run from source with <code>pnpm app</code>; downloads about 100 MB on first use)
+        </label>
+        <div className="row-inputs">
+          <label>
+            Covered threshold (0 to 1, higher is stricter)
+            <input value={covered} inputMode="decimal" onChange={(e) => setCovered(e.target.value)} />
+          </label>
+          <label>
+            Contradiction threshold (0 to 1)
+            <input value={contradiction} inputMode="decimal" onChange={(e) => setContradiction(e.target.value)} />
           </label>
         </div>
 

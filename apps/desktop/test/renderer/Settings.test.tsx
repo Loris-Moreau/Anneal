@@ -9,6 +9,7 @@ import { fakeApi } from "./helpers";
 const view = (over: Partial<SettingsView> = {}): SettingsView => ({
   decksRepo: "E:\\Github\\Anneal-Decks", decksRepoValid: true, userAgent: "Anneal/0.1", maxConcepts: 6, cardsPerConcept: 3,
   llm: { baseUrl: "", model: "gemini-3.5-flash-lite", rpm: 5, jsonMode: "schema", reasoningEffort: "low", temperature: null },
+  scoring: { localModels: false, llmJudge: true, coveredThreshold: 0.5, contradictionThreshold: 0.7 },
   hasApiKey: true, keySource: "stored", secretStorageAvailable: true, ...over,
 });
 
@@ -53,9 +54,21 @@ describe("Settings", () => {
     expect(saveSettings.mock.calls[0]![0]).toEqual({
       decksRepo: "E:\\Github\\Anneal-Decks", userAgent: "Anneal/0.1", maxConcepts: 9, cardsPerConcept: 3,
       llm: { baseUrl: "", model: "other-model", rpm: 5, jsonMode: "object", reasoningEffort: "low", temperature: 0.2 },
+      scoring: { localModels: false, llmJudge: true, coveredThreshold: 0.5, contradictionThreshold: 0.7 },
     });
     expect(await screen.findByText("Saved.")).toBeTruthy();
     expect(onSaved).toHaveBeenCalled();
+  });
+
+  it("saves the scoring choices: both switches and the thresholds as numbers", async () => {
+    const { saveSettings, user } = setup();
+    await field("Anneal-Decks folder");
+    await user.click(screen.getByLabelText(/Use local models/));
+    await user.click(screen.getByLabelText(/Let the LLM judge/));
+    await user.clear(screen.getByLabelText(/Covered threshold/));
+    await user.type(screen.getByLabelText(/Covered threshold/), "0.65");
+    await user.click(screen.getByRole("button", { name: "Save" }));
+    expect(saveSettings.mock.calls[0]![0]).toMatchObject({ scoring: { localModels: true, llmJudge: false, coveredThreshold: 0.65, contradictionThreshold: 0.7 } });
   });
 
   it("sends a typed key once and clears the box afterwards", async () => {

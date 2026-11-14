@@ -2,9 +2,11 @@
 import { useState } from "react";
 import type { Card, Deck } from "@anneal/core";
 import type { ReviewState, ReviewStatus } from "@anneal/workbench/shared";
+import type { WorkbenchApi } from "@anneal/workbench/shared";
 import { Tabs } from "../ui";
 import { CardBrowser } from "./CardBrowser";
 import { ConceptList } from "./ConceptList";
+import { PracticePanel } from "./PracticePanel";
 
 /** What the deck body needs: the deck, optional review and problem data, and the review actions. */
 interface Props {
@@ -17,13 +19,17 @@ interface Props {
   onEdit?: (card: Card) => void;
   openExternal: (url: string) => void;
   busy?: boolean;
+  /** Passed to the card browser: hide answers until clicked (the viewer does; the review screen does not). */
+  hideAnswers?: boolean;
+  /** When given, a Practice tab scores typed answers to this deck's cards (published decks only). */
+  practice?: { api: WorkbenchApi; onScoresChanged?: () => void };
 }
 
 /** The tabs of the deck body. */
-type Tab = "cards" | "concepts" | "info";
+type Tab = "cards" | "concepts" | "practice" | "info";
 
 /** Cards, Concepts and Info tabs for one deck. */
-export function DeckBody({ deck, review, cardIssues, issues = [], onSetReview, onEdit, openExternal, busy }: Props) {
+export function DeckBody({ deck, review, cardIssues, issues = [], onSetReview, onEdit, openExternal, busy, hideAnswers, practice }: Props) {
   const [tab, setTab] = useState<Tab>("cards");
   const m = deck.meta;
   const rows: [string, string][] = [
@@ -41,6 +47,7 @@ export function DeckBody({ deck, review, cardIssues, issues = [], onSetReview, o
         tabs={[
           { id: "cards", label: `Cards (${deck.cards.length})` },
           { id: "concepts", label: `Concepts (${deck.concepts.length})` },
+          ...(practice ? [{ id: "practice" as const, label: "Practice" }] : []),
           { id: "info", label: "Info" },
         ]}
         active={tab}
@@ -54,10 +61,12 @@ export function DeckBody({ deck, review, cardIssues, issues = [], onSetReview, o
           {...(onSetReview ? { onSetReview } : {})}
           {...(onEdit ? { onEdit } : {})}
           {...(busy !== undefined ? { busy } : {})}
+          {...(hideAnswers !== undefined ? { hideAnswers } : {})}
           openExternal={openExternal}
         />
       )}
       {tab === "concepts" && <ConceptList deck={deck} />}
+      {tab === "practice" && practice && <PracticePanel api={practice.api} deck={deck} {...(practice.onScoresChanged ? { onScoresChanged: practice.onScoresChanged } : {})} />}
       {tab === "info" && (
         <>
           <dl className="meta">

@@ -23,6 +23,8 @@ export interface TransformersOptions {
   /** "cls" for bge models, "mean" for MiniLM-style models. */
   pooling?: "cls" | "mean";
   dtype?: string;
+  /** Folder where downloaded models are kept. Needed in packaged apps, where the default (inside node_modules) is not writable. */
+  cacheDir?: string;
 }
 
 /** Separates "package not installed" from "installed but failed to load", so the real cause is never hidden. */
@@ -37,18 +39,21 @@ export function describeLoadError(e: unknown): Error {
 }
 
 /** Loads transformers.js on demand, turning a failure into an explanatory error. */
-async function loadLib(): Promise<any> {
+async function loadLib(cacheDir?: string): Promise<any> {
   const name = "@huggingface/transformers";
+  let tf: any;
   try {
-    return await import(name);
+    tf = await import(name);
   } catch (e) {
     throw describeLoadError(e);
   }
+  if (cacheDir) tf.env.cacheDir = cacheDir;
+  return tf;
 }
 
 /** Loads an embedding model and returns an Embedder that produces normalized vectors. */
-export async function createTransformersEmbedder(model: string, o: Pick<TransformersOptions, "pooling" | "dtype"> = {}): Promise<Embedder> {
-  const tf = await loadLib();
+export async function createTransformersEmbedder(model: string, o: Pick<TransformersOptions, "pooling" | "dtype" | "cacheDir"> = {}): Promise<Embedder> {
+  const tf = await loadLib(o.cacheDir);
   const extractor = await tf.pipeline("feature-extraction", model, { dtype: o.dtype ?? "q8" });
   return {
     async embed(texts) {
@@ -70,8 +75,8 @@ const softmax = (xs: number[]) => {
  * Loads an NLI cross-encoder and returns a model that classifies (premise, hypothesis) pairs, 16 at a time. The
  * model's labels must include entailment, neutral and contradiction.
  */
-export async function createTransformersNli(model: string, o: Pick<TransformersOptions, "dtype"> = {}): Promise<NliModel> {
-  const tf = await loadLib();
+export async function createTransformersNli(model: string, o: Pick<TransformersOptions, "dtype" | "cacheDir"> = {}): Promise<NliModel> {
+  const tf = await loadLib(o.cacheDir);
   const tokenizer = await tf.AutoTokenizer.from_pretrained(model);
   const net = await tf.AutoModelForSequenceClassification.from_pretrained(model, { dtype: o.dtype ?? "q8" });
   const id2label = net.config.id2label as Record<string, string>;
@@ -103,8 +108,9 @@ export async function createTransformersNli(model: string, o: Pick<TransformersO
 /** The full local scorer: embedder + NLI model wrapped in the key-point scorer. */
 export async function createLocalScorer(o: TransformersOptions & ScorerOptions = {}): Promise<KeyPointScorer> {
   const pooling = o.pooling ?? "cls";
-  const embedder = await createTransformersEmbedder(o.embedModel ?? DEFAULT_MODELS.embed, o.dtype ? { pooling, dtype: o.dtype } : { pooling });
-  const nli = await createTransformersNli(o.nliModel ?? DEFAULT_MODELS.nli, o.dtype ? { dtype: o.dtype } : {});
+  const shared = { ...(o.dtype ? { dtype: o.dtype } : {}), ...(o.cacheDir ? { cacheDir: o.cacheDir } : {}) };
+  const embedder = await createTransformersEmbedder(o.embedModel ?? DEFAULT_MODELS.embed, { pooling, ...shared });
+  const nli = await createTransformersNli(o.nliModel ?? DEFAULT_MODELS.nli, shared);
   return createKeyPointScorer({ embedder, nli }, {
     ...(o.minSimilarity !== undefined ? { minSimilarity: o.minSimilarity } : {}),
     ...(o.premiseContext ? { premiseContext: true } : {}),

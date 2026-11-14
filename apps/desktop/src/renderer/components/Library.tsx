@@ -1,8 +1,9 @@
 /** Library.tsx: the list of published decks in the Anneal-Decks folder. */
-import type { WorkbenchApi } from "@anneal/workbench/shared";
+import type { ScoreSummary, WorkbenchApi } from "@anneal/workbench/shared";
 import { formatBytes, plural, typeLabel } from "../format";
 import { useAsync } from "../hooks";
 import { Badge, ErrorBanner, Loading } from "../ui";
+import { percent } from "./PracticePanel";
 
 /** Props of the library: the API, navigation, and a key that forces a reload. */
 interface Props {
@@ -20,6 +21,8 @@ interface Props {
  */
 export function Library({ api, onOpen, onOpenSettings, refreshKey }: Props) {
   const decks = useAsync(() => api.listDecks(), [api, refreshKey]);
+  // Scores are optional extras: a failure here must not hide the deck list.
+  const scores = useAsync(() => api.listScores().catch((): Record<string, ScoreSummary> => ({})), [api, refreshKey]);
   if (decks.loading) return <Loading what="decks" />;
   if (decks.error)
     return <ErrorBanner message={decks.error} action={/Settings/.test(decks.error) ? { label: "Open settings", onClick: onOpenSettings } : { label: "Retry", onClick: decks.reload }} />;
@@ -33,6 +36,7 @@ export function Library({ api, onOpen, onOpenSettings, refreshKey }: Props) {
           <th>Source</th>
           <th>Cards</th>
           <th>Types</th>
+          <th>Score</th>
           <th>License</th>
           <th>Health</th>
         </tr>
@@ -60,6 +64,18 @@ export function Library({ api, onOpen, onOpenSettings, refreshKey }: Props) {
                   {typeLabel(t)} {n}
                 </span>
               ))}
+            </td>
+            <td>
+              {scores.data?.[d.id] ? (
+                <>
+                  {percent(scores.data[d.id]!.score)}
+                  <div className="muted small">
+                    {scores.data[d.id]!.attemptedCards}/{scores.data[d.id]!.totalCards} tried
+                  </div>
+                </>
+              ) : (
+                <span className="muted">—</span>
+              )}
             </td>
             <td>
               {d.license}

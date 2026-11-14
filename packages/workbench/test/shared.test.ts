@@ -61,6 +61,7 @@ describe("API_METHODS", () => {
       getSettings: true, saveSettings: true, testLlm: true, listDecks: true, loadDeck: true, searchWikipedia: true, planGeneration: true,
       startGeneration: true, cancelJob: true, listDrafts: true, loadDraft: true, deleteDraft: true, setReview: true, editCard: true,
       previewPublish: true, publishDraft: true, gitStatus: true, validateRepo: true,
+      checkAnswer: true, rateAnswer: true, getScores: true, listScores: true, resetScores: true,
     };
     expect([...API_METHODS].sort()).toEqual(Object.keys(every).sort());
   });

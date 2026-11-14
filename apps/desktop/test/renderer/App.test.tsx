@@ -18,6 +18,7 @@ function setup(over: Parameters<typeof fakeApi>[0] = {}) {
   let current: DraftView = draftView();
   const api = fakeApi({
     listDecks: async () => [row],
+    listScores: async () => ({}),
     loadDeck: async () => ({ deck: deck(), health: "ok", issues: [] }),
     listDrafts: async () => [current.summary],
     loadDraft: async () => current,
@@ -30,7 +31,7 @@ function setup(over: Parameters<typeof fakeApi>[0] = {}) {
     publishDraft: async () => ({ writtenTo: "E:\\Anneal-Decks\\decks\\wiki-test", sha256: "a".repeat(64), preview: { blockers: [], issues: [], finalCardCount: 3, excludedCards: 0, prunedConcepts: [], diff: null } }),
     gitStatus: async () => ({ isRepo: true, branch: "main", ahead: 0, behind: 0, changes: [], changedDecks: [], clean: true }),
     validateRepo: async () => ({ decks: 1, withIssues: 0, problems: [] }),
-    getSettings: async () => ({ decksRepo: null, decksRepoValid: false, userAgent: "", maxConcepts: 6, cardsPerConcept: 3, llm: { baseUrl: "", model: "", rpm: 5, jsonMode: "schema", reasoningEffort: "", temperature: null }, hasApiKey: false, keySource: "none", secretStorageAvailable: true }),
+    getSettings: async () => ({ decksRepo: null, decksRepoValid: false, userAgent: "", maxConcepts: 6, cardsPerConcept: 3, llm: { baseUrl: "", model: "", rpm: 5, jsonMode: "schema", reasoningEffort: "", temperature: null }, scoring: { localModels: false, llmJudge: true, coveredThreshold: 0.5, contradictionThreshold: 0.7 }, hasApiKey: false, keySource: "none", secretStorageAvailable: true }),
     searchWikipedia: async () => [],
     ...over,
   });
@@ -66,10 +67,23 @@ describe("App navigation", () => {
     await user.click(await screen.findByRole("button", { name: "Test (Wikipedia)" }));
     expect(await screen.findByRole("heading", { name: "Test (Wikipedia)" })).toBeTruthy();
     expect(nav("Library").getAttribute("aria-current")).toBe("page");
+    await user.click(screen.getByRole("button", { name: /The powerhouse/ }));
+    expect(screen.queryByText("mitochondria")).toBeNull(); // the viewer hides answers until clicked
+    await user.click(screen.getByRole("button", { name: "Click to show the answer" }));
+    expect(screen.getByText("mitochondria")).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "Open Wikipedia page" }));
     expect(bridge.openExternal).toHaveBeenCalledWith("https://en.wikipedia.org/wiki/Kinetic_energy?oldid=42");
+    expect(screen.getByRole("tab", { name: "Practice" })).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "← Library" }));
     expect(await screen.findByRole("table")).toBeTruthy();
+  });
+
+  it("has no Practice tab while reviewing a draft", async () => {
+    const { user } = setup();
+    await user.click(nav("Drafts"));
+    await user.click(await screen.findByRole("button", { name: "Review" }));
+    await screen.findByRole("heading", { name: "Test (Wikipedia)" });
+    expect(screen.queryByRole("tab", { name: "Practice" })).toBeNull();
   });
 
   it("takes you to Settings from the 'folder not set' error", async () => {
@@ -112,7 +126,7 @@ describe("App workflows", () => {
   });
 
   it("reloads status after settings are saved", async () => {
-    const { api, user } = setup({ saveSettings: async () => ({ decksRepo: "E:\\x", decksRepoValid: true, userAgent: "", maxConcepts: 6, cardsPerConcept: 3, llm: { baseUrl: "", model: "", rpm: 5, jsonMode: "schema", reasoningEffort: "", temperature: null }, hasApiKey: false, keySource: "none", secretStorageAvailable: true }) });
+    const { api, user } = setup({ saveSettings: async () => ({ decksRepo: "E:\\x", decksRepoValid: true, userAgent: "", maxConcepts: 6, cardsPerConcept: 3, llm: { baseUrl: "", model: "", rpm: 5, jsonMode: "schema", reasoningEffort: "", temperature: null }, scoring: { localModels: false, llmJudge: true, coveredThreshold: 0.5, contradictionThreshold: 0.7 }, hasApiKey: false, keySource: "none", secretStorageAvailable: true }) });
     await user.click(nav("Settings"));
     await screen.findByRole("heading", { name: "Settings" });
     const before = api.gitStatus.mock.calls.length;

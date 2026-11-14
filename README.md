@@ -97,14 +97,25 @@ Tier 2 scores each key point as an NLI hypothesis, so write them as short, stand
 
 ## Workbench (desktop app)
 
-An Electron app for the deck author: browse published decks and their cards, generate decks from Wikipedia, review the generated cards, and publish into the `Anneal-Decks` folder. It never runs git: you commit and push yourself. Calibration, labeling and practice are not in it yet; the CLI keeps those.
+An Electron app for the deck author: browse published decks and their cards (answers stay hidden until you click them), practise a deck and see its score, generate decks from Wikipedia, review the generated cards, and publish into the `Anneal-Decks` folder. It never runs git: you commit and push yourself. Calibration and labeling are not in it yet; the CLI keeps those.
+
+**Windows exe, no commands.** Two ways to get it:
+- Download the built app (`Anneal-Workbench-win-x64.zip`), unzip it anywhere, double-click `Anneal Workbench.exe`. It is unsigned, so Windows SmartScreen warns once: "More info", then "Run anyway".
+- Or let GitHub build it: push this repo, open the **Actions** tab, run **Build Windows app**, and download the `anneal-workbench-windows` artifact (an installer and a portable single exe). Pushing a tag like `v0.1.0` also attaches both files to a release.
+
+From source, if you prefer commands:
 
 ```
 pnpm install            # downloads the Electron binary (electron is in allowBuilds); if pnpm complains, run: pnpm approve-builds
 pnpm app                # builds and starts the app
 pnpm app:dev            # development mode: Vite hot reload for the UI
-pnpm app:dist           # Windows installer in apps/desktop/release (NSIS). Not yet verified.
+pnpm app:dist           # on Windows: installer + portable exe in apps/desktop/release
+pnpm --filter @anneal/desktop dist:dir   # an unpacked folder with the exe (builds on Linux and macOS too)
 ```
+
+Your settings, drafts and practice scores live in `%APPDATA%\Anneal Workbench`, whichever way you start the app.
+
+**Scoring** (Practice tab of a deck): a typed answer is checked by string match first (free), then by the local models if you switch them on, then by the LLM judge if you switch it on; whatever is still unsettled you rate yourself, and you can always overrule the scorer. Results are kept per deck and shown in the Library. The local models run only when started from source (`pnpm app`); the packaged exe uses string match plus the LLM judge.
 
 First run: open **Settings**, choose the `Anneal-Decks` folder, set your Wikipedia User-Agent, and (for model cards) the model id and API key. The key is stored encrypted with the operating system's credential store, never in a file. **Generate** can plan first (no cost, shows token estimates), then run; the result is a **draft**. In **Drafts**, every card written by the model starts *pending*: approve, edit or reject each one. Publishing is blocked until none is pending, and it shows the diff against the published copy before writing three files into `Anneal-Decks/decks/<id>/`.
 

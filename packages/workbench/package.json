@@ -15,7 +15,8 @@
     "@anneal/core": "workspace:*",
     "@anneal/llm": "workspace:*",
     "@anneal/wiki": "workspace:*",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "@anneal/scorer": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",

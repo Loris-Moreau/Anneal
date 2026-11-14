@@ -66,6 +66,64 @@ describe("CardBrowser detail", () => {
   });
 });
 
+describe("CardBrowser hidden answers", () => {
+  const detail = () => within(screen.getByRole("region", { name: "Card detail" }));
+  const open = async (hideAnswers = true) => {
+    const user = userEvent.setup();
+    render(<CardBrowser deck={deck()} hideAnswers={hideAnswers} openExternal={() => {}} />);
+    return user;
+  };
+
+  it("hides the answer, aliases, key points and source excerpt until the card is clicked open", async () => {
+    const user = await open();
+    await user.click(screen.getByRole("button", { name: /The powerhouse/ }));
+    expect(detail().getByText("The powerhouse of the cell is the [...].")).toBeTruthy(); // the prompt stays visible
+    for (const secret of ["mitochondria", /Also accepted/, /The powerhouse of the cell is the mitochondria\./]) expect(detail().queryByText(secret)).toBeNull();
+    await user.click(detail().getByRole("button", { name: "Click to show the answer" }));
+    expect(detail().getByText("mitochondria")).toBeTruthy();
+    expect(detail().getByText(/Also accepted: mitochondrion/)).toBeTruthy();
+    expect(detail().getByText("The powerhouse of the cell is the mitochondria.")).toBeTruthy();
+  });
+
+  it("hides key points of model cards too, since they give the answer away", async () => {
+    const user = await open();
+    await user.click(screen.getByRole("button", { name: /Why does folding/ }));
+    expect(detail().queryByText("Key points")).toBeNull();
+    expect(detail().queryByText("The inner membrane is folded.")).toBeNull();
+    await user.click(detail().getByRole("button", { name: "Click to show the answer" }));
+    expect(detail().getByText("The inner membrane is folded.")).toBeTruthy();
+  });
+
+  it("keeps other cards hidden, remembers revealed ones, and can hide again", async () => {
+    const user = await open();
+    await user.click(screen.getByRole("button", { name: /The powerhouse/ }));
+    await user.click(detail().getByRole("button", { name: "Click to show the answer" }));
+    await user.click(screen.getByRole("button", { name: /Why does folding/ }));
+    expect(detail().getByRole("button", { name: "Click to show the answer" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: /The powerhouse/ }));
+    expect(detail().getByText("mitochondria")).toBeTruthy();
+    await user.click(detail().getByRole("button", { name: "Hide the answer again" }));
+    expect(detail().queryByText("mitochondria")).toBeNull();
+  });
+
+  it("is switched off and on with the checkbox, which also re-hides revealed answers", async () => {
+    const user = await open();
+    await user.click(screen.getByRole("button", { name: /The powerhouse/ }));
+    await user.click(screen.getByLabelText("Hide answers"));
+    expect(detail().getByText("mitochondria")).toBeTruthy();
+    expect(detail().queryByRole("button", { name: "Click to show the answer" })).toBeNull();
+    await user.click(screen.getByLabelText("Hide answers"));
+    expect(detail().queryByText("mitochondria")).toBeNull();
+  });
+
+  it("shows answers at once when hiding was not asked for (the review screen)", async () => {
+    const user = await open(false);
+    await user.click(screen.getByRole("button", { name: /The powerhouse/ }));
+    expect(detail().getByText("mitochondria")).toBeTruthy();
+    expect((screen.getByLabelText("Hide answers") as HTMLInputElement).checked).toBe(false);
+  });
+});
+
 describe("CardBrowser review mode", () => {
   const setup = (over = {}) => {
     const v = draftView();

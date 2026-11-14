@@ -5,7 +5,7 @@
  * services share one set of types and pure helpers. The services live in the other files of this package; the
  * renderer must import only from "@anneal/workbench/shared".
  */
-import { topoRank, type Card, type Concept, type Deck, type DeckDiff } from "@anneal/core";
+import { topoRank, type Card, type Concept, type Deck, type DeckDiff, type Verdict } from "@anneal/core";
 
 /* ------------------------------------------------------------------ review ---------- */
 
@@ -228,6 +228,17 @@ export interface SettingsView {
   maxConcepts: number;
   cardsPerConcept: number;
   llm: { baseUrl: string; model: string; rpm: number; jsonMode: "schema" | "object" | "none"; reasoningEffort: string; temperature: number | null };
+  /** How typed answers are scored in the Practice tab. */
+  scoring: {
+    /** Use the local embedding + NLI models for explanation cards (runs from source only; models download on first use). */
+    localModels: boolean;
+    /** Ask the LLM to judge answers the free checks cannot settle (needs the model connection and key). */
+    llmJudge: boolean;
+    /** Minimum support (0 to 1) for the local scorer to accept a key point as covered. Higher is stricter. */
+    coveredThreshold: number;
+    /** Contradiction probability (0 to 1) at or above which the local scorer hands the answer on instead of accepting it. */
+    contradictionThreshold: number;
+  };
   hasApiKey: boolean;
   /** Where the key comes from: stored encrypted by the app, the ANNEAL_LLM_API_KEY environment variable, or nowhere. */
   keySource: "stored" | "env" | "none";
@@ -242,6 +253,7 @@ export interface SettingsPatch {
   maxConcepts?: number;
   cardsPerConcept?: number;
   llm?: Partial<SettingsView["llm"]>;
+  scoring?: Partial<SettingsView["scoring"]>;
   apiKey?: string | null;
 }
 
@@ -252,6 +264,50 @@ export interface LlmTestResult {
   milliseconds?: number;
   tokens?: number;
   error?: string;
+}
+
+/* ------------------------------------------------------------------ scoring --------- */
+
+/** A settled rating of one answer. */
+export type AnswerVerdict = "correct" | "partial" | "incorrect";
+
+/** The result of checking one typed answer. */
+export interface AnswerResult {
+  cardId: string;
+  /** "uncertain" means no check could decide and the learner must rate themselves (`needsSelfRating`). */
+  verdict: Verdict;
+  /** Which check decided: 1 string match, 2 local rubric scorer, 3 LLM judge, 0 none. */
+  tier: 0 | 1 | 2 | 3;
+  score: number;
+  /** Key points the answer did not cover, when known. */
+  missing?: string[];
+  explanation?: string;
+  needsSelfRating: boolean;
+  /** Why a check that was switched on could not run (for example no API key). Shown only when self-rating is needed. */
+  notes: string[];
+  /** Id of the recorded attempt, or "" when nothing was recorded yet (self-rating pending). */
+  attemptId: string;
+}
+
+/** A deck's score in one line: used by the library list. */
+export interface ScoreSummary {
+  totalCards: number;
+  attemptedCards: number;
+  /** (correct + half of partial) / attempted cards, or null when nothing was attempted. */
+  score: number | null;
+  lastAttemptAt?: string;
+}
+
+/** Practice results of one deck. Each card counts once, by its latest rating. */
+export interface DeckScores extends ScoreSummary {
+  deckId: string;
+  correctCards: number;
+  partialCards: number;
+  incorrectCards: number;
+  /** Per card type, over the attempted cards. */
+  byType: Record<string, { attempted: number; correct: number; partial: number; incorrect: number }>;
+  /** Latest rating and number of attempts per card id. */
+  cards: Record<string, { verdict: AnswerVerdict; attempts: number }>;
 }
 
 /* ------------------------------------------------------------------ the API --------- */
@@ -284,12 +340,22 @@ export interface WorkbenchApi {
 
   gitStatus(): Promise<GitStatus>;
   validateRepo(): Promise<RepoValidation>;
+
+  /** Scores a typed answer to a card of a published deck, and records the attempt unless the learner must self-rate. */
+  checkAnswer(deckId: string, cardId: string, answer: string): Promise<AnswerResult>;
+  /** Records the learner's own rating. With `attemptId` it replaces that attempt's rating (a disagreement with the scorer). */
+  rateAnswer(deckId: string, cardId: string, verdict: AnswerVerdict, attemptId?: string): Promise<DeckScores>;
+  getScores(deckId: string): Promise<DeckScores>;
+  /** Score summary of every deck that has attempts, by deck id. */
+  listScores(): Promise<Record<string, ScoreSummary>>;
+  resetScores(deckId: string): Promise<void>;
 }
 
 /** Names of every method of WorkbenchApi. The IPC layer accepts only these names. */
 export const API_METHODS = [
   "getSettings", "saveSettings", "testLlm", "listDecks", "loadDeck", "searchWikipedia", "planGeneration", "startGeneration",
   "cancelJob", "listDrafts", "loadDraft", "deleteDraft", "setReview", "editCard", "previewPublish", "publishDraft", "gitStatus", "validateRepo",
+  "checkAnswer", "rateAnswer", "getScores", "listScores", "resetScores",
 ] as const satisfies readonly (keyof WorkbenchApi)[];
 
 /* ------------------------------------------------------------------ pure view helpers - */

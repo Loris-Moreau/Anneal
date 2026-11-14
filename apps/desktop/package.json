@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Anneal Workbench: generate, review and publish study decks",
+  "productName": "Anneal Workbench",
   "author": "Anneal contributors",
   "license": "MIT",
   "main": "dist/main/main.cjs",
@@ -13,6 +14,7 @@
     "start": "pnpm build && electron .",
     "dev": "node scripts/dev.mjs",
     "dist": "pnpm build && electron-builder --win --publish never",
+    "dist:dir": "pnpm build && electron-builder --win dir --publish never",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json && tsc -p tsconfig.main.json"
   },
@@ -40,8 +42,9 @@
     "appId": "org.anneal.workbench",
     "productName": "Anneal Workbench",
     "directories": { "output": "release" },
-    "files": ["dist/**", "package.json"],
-    "win": { "target": "nsis" },
-    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+    "files": ["dist/**", "!**/*.map", "package.json"],
+    "win": { "target": ["nsis", "portable"] },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true, "artifactName": "Anneal-Workbench-Setup-${version}.exe" },
+    "portable": { "artifactName": "Anneal-Workbench-${version}-portable.exe" }
   }
 }

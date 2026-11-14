@@ -1,0 +1,51 @@
+name: Build Windows app
+
+# Builds the Anneal Workbench installer and a portable .exe on a Windows runner.
+# Run it by hand (Actions tab -> Build Windows app -> Run workflow), or push a tag such as v0.1.0:
+# a tag also attaches both files to a GitHub release. The files are unsigned, so Windows SmartScreen
+# warns on first start ("More info" -> "Run anyway").
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: latest
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Only the desktop app and what it bundles. Build scripts run here (Electron downloads its binary).
+      - name: Install
+        run: pnpm install --frozen-lockfile --filter "@anneal/desktop..."
+
+      - name: Test
+        run: pnpm --filter @anneal/desktop... test
+
+      - name: Build installer and portable exe
+        run: pnpm --filter @anneal/desktop dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: anneal-workbench-windows
+          path: |
+            apps/desktop/release/*.exe
+          if-no-files-found: error
+
+      - name: Attach to the release (tags only)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: apps/desktop/release/*.exe

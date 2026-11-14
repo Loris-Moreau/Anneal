@@ -45,3 +45,7 @@ textarea { width: 100%; font-family: inherit; }
 .publish { border: 1px solid var(--line); border-radius: 6px; padding: 4px 14px 12px; margin: 10px 0; background: var(--panel); }
 .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: grid; place-items: center; }
 .modal { width: min(640px, 92vw); max-height: 90vh; overflow: auto; padding: 8px 18px 16px; border-radius: 8px; background: var(--panel); display: flex; flex-direction: column; gap: 8px; } .modal label { display: flex; flex-direction: column; gap: 3px; }
+.reveal { display: block; width: 100%; margin: 14px 0; padding: 18px; border-style: dashed; color: var(--muted); }
+.scorebar { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; padding: 8px 12px; margin: 8px 0 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.practice-card { max-width: 720px; } .question { font-size: 16px; margin: 6px 0 10px; } .result { margin-top: 12px; }
+code { font-family: ui-monospace, Consolas, monospace; font-size: 12px; }

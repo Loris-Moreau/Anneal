@@ -21,6 +21,8 @@ export const DEFAULT_SETTINGS: StoredSettings = {
   maxConcepts: 6,
   cardsPerConcept: 3,
   llm: { baseUrl: "", model: "", rpm: 5, jsonMode: "schema", reasoningEffort: "", temperature: null },
+  // Confirm-only thresholds from calibration: the local scorer may only accept an answer, never reject one.
+  scoring: { localModels: false, llmJudge: true, coveredThreshold: 0.5, contradictionThreshold: 0.7 },
 };
 
 /** Where secrets are kept. `available()` is false when the operating system cannot encrypt them. */
@@ -50,7 +52,7 @@ const EFFORTS = ["", "minimal", "low", "medium", "high"];
 
 /** Validates a patch and returns the merged settings. @throws with a message naming the field if a value is out of range */
 export function applyPatch(base: StoredSettings, patch: SettingsPatch): StoredSettings {
-  const next: StoredSettings = { ...base, llm: { ...base.llm } };
+  const next: StoredSettings = { ...base, llm: { ...base.llm }, scoring: { ...base.scoring } };
   const int = (name: string, v: number, lo: number, hi: number) => {
     if (!Number.isInteger(v) || v < lo || v > hi) throw new Error(`${name} must be a whole number from ${lo} to ${hi}`);
     return v;
@@ -80,6 +82,17 @@ export function applyPatch(base: StoredSettings, patch: SettingsPatch): StoredSe
       next.llm.temperature = l.temperature;
     }
   }
+  const sc = patch.scoring;
+  if (sc) {
+    const unit = (name: string, v: number) => {
+      if (!(v >= 0 && v <= 1)) throw new Error(`${name} must be a number from 0 to 1`);
+      return v;
+    };
+    if (sc.localModels !== undefined) next.scoring.localModels = !!sc.localModels;
+    if (sc.llmJudge !== undefined) next.scoring.llmJudge = !!sc.llmJudge;
+    if (sc.coveredThreshold !== undefined) next.scoring.coveredThreshold = unit("covered threshold", sc.coveredThreshold);
+    if (sc.contradictionThreshold !== undefined) next.scoring.contradictionThreshold = unit("contradiction threshold", sc.contradictionThreshold);
+  }
   return next;
 }
 
@@ -94,9 +107,9 @@ export class SettingsService {
   async load(): Promise<StoredSettings> {
     try {
       const raw = JSON.parse(await readFile(this.file, "utf8")) as Partial<StoredSettings>;
-      return { ...DEFAULT_SETTINGS, ...raw, llm: { ...DEFAULT_SETTINGS.llm, ...(raw.llm ?? {}) } };
+      return { ...DEFAULT_SETTINGS, ...raw, llm: { ...DEFAULT_SETTINGS.llm, ...(raw.llm ?? {}) }, scoring: { ...DEFAULT_SETTINGS.scoring, ...(raw.scoring ?? {}) } };
     } catch {
-      return { ...DEFAULT_SETTINGS, llm: { ...DEFAULT_SETTINGS.llm } };
+      return { ...DEFAULT_SETTINGS, llm: { ...DEFAULT_SETTINGS.llm }, scoring: { ...DEFAULT_SETTINGS.scoring } };
     }
   }
 

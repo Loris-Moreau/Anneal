@@ -22,6 +22,12 @@ describe("applyPatch", () => {
     [{ llm: { rpm: 0 } }, /requests per minute/], [{ llm: { jsonMode: "xml" as never } }, /JSON mode/],
     [{ llm: { reasoningEffort: "max" } }, /reasoning effort/], [{ llm: { temperature: Number.NaN } }, /temperature/],
   ])("rejects %j", (patch, message) => expect(() => applyPatch(DEFAULT_SETTINGS, patch as never)).toThrow(message));
+  it("merges scoring settings and checks thresholds are between 0 and 1", () => {
+    expect(applyPatch(DEFAULT_SETTINGS, { scoring: { localModels: true, llmJudge: false, coveredThreshold: 0.6, contradictionThreshold: 0.8 } }).scoring).toEqual({ localModels: true, llmJudge: false, coveredThreshold: 0.6, contradictionThreshold: 0.8 });
+    expect(DEFAULT_SETTINGS.scoring).toEqual({ localModels: false, llmJudge: true, coveredThreshold: 0.5, contradictionThreshold: 0.7 });
+    for (const bad of [-0.1, 1.5, Number.NaN]) expect(() => applyPatch(DEFAULT_SETTINGS, { scoring: { coveredThreshold: bad } })).toThrow(/covered threshold/);
+    expect(() => applyPatch(DEFAULT_SETTINGS, { scoring: { contradictionThreshold: 2 } })).toThrow(/contradiction threshold/);
+  });
   it("clears the deck repo with null or empty text", () => {
     expect(applyPatch({ ...DEFAULT_SETTINGS, decksRepo: "/x" }, { decksRepo: null }).decksRepo).toBeNull();
     expect(applyPatch({ ...DEFAULT_SETTINGS, decksRepo: "/x" }, { decksRepo: "  " }).decksRepo).toBeNull();
