@@ -1,6 +1,7 @@
 import { mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { CSP, isAppUrl, isSafeExternalUrl, startApp, type AppConfig, type ElectronLike } from "../../src/main/app";
 import { IPC } from "../../src/shared/bridge";
@@ -46,30 +47,36 @@ async function fakeElectron(options: { lock?: boolean } = {}) {
   return { electron: electron as unknown as ElectronLike, raw: electron, handlers, appEvents, windows, webRequest, userData };
 }
 
-const cfg = (extra: Partial<AppConfig> = {}): AppConfig => ({ preloadPath: "/app/dist/main/preload.cjs", rendererIndex: "/app/dist/renderer/index.html", env: {}, ...extra });
-const FROM_APP = { senderFrame: { url: "file:///app/dist/renderer/index.html" } };
+/** Real absolute path of the platform (a drive letter on Windows) and the matching file: URL, as Electron reports them. */
+const abs = (p: string) => resolve(p);
+const fileUrl = (p: string) => pathToFileURL(abs(p)).href;
+const RENDERER_INDEX = abs("/app/dist/renderer/index.html");
+const cfg = (extra: Partial<AppConfig> = {}): AppConfig => ({ preloadPath: abs("/app/dist/main/preload.cjs"), rendererIndex: RENDERER_INDEX, env: {}, ...extra });
+const FROM_APP = { senderFrame: { url: fileUrl("/app/dist/renderer/index.html") } };
 const FROM_ELSEWHERE = { senderFrame: { url: "https://evil.example/" } };
-const FROM_OTHER_FILE = { senderFrame: { url: "file:///tmp/evil.html" } };
+const FROM_OTHER_FILE = { senderFrame: { url: fileUrl("/tmp/evil.html") } };
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("isAppUrl", () => {
-  const prod = { rendererIndex: "/app/dist/renderer/index.html" };
+  const prod = { rendererIndex: RENDERER_INDEX };
   const dev = { devUrl: "http://localhost:5173/", rendererIndex: prod.rendererIndex };
   it("in production trusts only files inside the renderer folder", () => {
-    expect(isAppUrl("file:///app/dist/renderer/index.html", prod)).toBe(true);
-    expect(isAppUrl("file:///app/dist/renderer/assets/index-abc.js", prod)).toBe(true);
-    expect(isAppUrl("file:///app/dist/main/main.cjs", prod)).toBe(false);
-    expect(isAppUrl("file:///etc/passwd", prod)).toBe(false);
-    expect(isAppUrl("file:///app/dist/renderer/../main/main.cjs", prod)).toBe(false);
-    expect(isAppUrl("file:///app/dist/renderer-evil/index.html", prod)).toBe(false);
+    expect(isAppUrl(fileUrl("/app/dist/renderer/index.html"), prod)).toBe(true);
+    expect(isAppUrl(fileUrl("/app/dist/renderer/assets/index-abc.js"), prod)).toBe(true);
+    expect(isAppUrl(fileUrl("/app/dist/renderer/with space/a b.js"), prod)).toBe(true); // percent-encoded paths decode
+    expect(isAppUrl(fileUrl("/app/dist/main/main.cjs"), prod)).toBe(false);
+    expect(isAppUrl(fileUrl("/etc/passwd"), prod)).toBe(false);
+    expect(isAppUrl(`${fileUrl("/app/dist/renderer")}/../main/main.cjs`, prod)).toBe(false);
+    expect(isAppUrl(fileUrl("/app/dist/renderer-evil/index.html"), prod)).toBe(false);
+    expect(isAppUrl("file:///etc/passwd", prod)).toBe(false); // no drive letter on Windows: not even a valid path there
     expect(isAppUrl("https://example.org/", prod)).toBe(false);
     expect(isAppUrl("file://", prod)).toBe(false);
   });
   it("in development trusts only the dev server's origin", () => {
     expect(isAppUrl("http://localhost:5173/x", dev)).toBe(true);
     expect(isAppUrl("http://localhost:6000/", dev)).toBe(false);
-    expect(isAppUrl("file:///app/dist/renderer/index.html", dev)).toBe(false);
+    expect(isAppUrl(fileUrl("/app/dist/renderer/index.html"), dev)).toBe(false);
     expect(isAppUrl("not a url", dev)).toBe(false);
   });
 });
@@ -95,8 +102,8 @@ describe("startApp", () => {
     await startApp(f.electron, cfg());
     expect(f.raw.app.whenReady).toHaveBeenCalled();
     expect(f.windows).toHaveLength(1);
-    expect(f.windows[0]!.options.webPreferences).toEqual({ preload: "/app/dist/main/preload.cjs", contextIsolation: true, nodeIntegration: false, sandbox: true });
-    expect(f.windows[0]!.loadFile).toHaveBeenCalledWith("/app/dist/renderer/index.html");
+    expect(f.windows[0]!.options.webPreferences).toEqual({ preload: abs("/app/dist/main/preload.cjs"), contextIsolation: true, nodeIntegration: false, sandbox: true });
+    expect(f.windows[0]!.loadFile).toHaveBeenCalledWith(RENDERER_INDEX);
     expect(f.windows[0]!.loadURL).not.toHaveBeenCalled();
   });
 
@@ -126,10 +133,10 @@ describe("startApp", () => {
     nav(away, "https://example.org/");
     expect(away.preventDefault).toHaveBeenCalled();
     const stay = { preventDefault: vi.fn() };
-    nav(stay, "file:///app/dist/renderer/index.html");
+    nav(stay, fileUrl("/app/dist/renderer/index.html"));
     expect(stay.preventDefault).not.toHaveBeenCalled();
     const otherFile = { preventDefault: vi.fn() };
-    nav(otherFile, "file:///etc/passwd");
+    nav(otherFile, fileUrl("/etc/passwd"));
     expect(otherFile.preventDefault).toHaveBeenCalled();
   });
 

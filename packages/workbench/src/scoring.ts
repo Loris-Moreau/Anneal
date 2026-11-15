@@ -42,8 +42,14 @@ const MAX_ATTEMPTS = 5000;
 export class ScoreStore {
   /** @param dir folder of the score files; created on first write
    *  @param now clock, replaceable in tests
-   *  @param newId attempt id generator, replaceable in tests */
-  constructor(private readonly dir: string, private readonly now: () => Date = () => new Date(), private readonly newId: () => string = randomUUID) {}
+   *  @param newId attempt id generator, replaceable in tests
+   *  @param maxAttempts attempts kept per deck, oldest dropped first (small in tests) */
+  constructor(
+    private readonly dir: string,
+    private readonly now: () => Date = () => new Date(),
+    private readonly newId: () => string = randomUUID,
+    private readonly maxAttempts: number = MAX_ATTEMPTS,
+  ) {}
 
   private path(deckId: string): string {
     return join(this.dir, `${assertSafeId(deckId)}.json`);
@@ -62,7 +68,7 @@ export class ScoreStore {
   private async save(deckId: string, attempts: Attempt[]): Promise<void> {
     await mkdir(this.dir, { recursive: true });
     const tmp = `${this.path(deckId)}.tmp`;
-    await writeFile(tmp, JSON.stringify({ version: 1, deckId, attempts: attempts.slice(-MAX_ATTEMPTS) }));
+    await writeFile(tmp, JSON.stringify({ version: 1, deckId, attempts: attempts.slice(-this.maxAttempts) }));
     await rename(tmp, this.path(deckId));
   }
 

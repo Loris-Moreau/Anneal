@@ -6,4 +6,5 @@ allowBuilds:
   onnxruntime-node: true
   protobufjs: true
   electron: true
+  # Squirrel.Windows installer builder pulled in by electron-builder. We build NSIS and portable targets, so its install script is not needed.
   electron-winstaller: false

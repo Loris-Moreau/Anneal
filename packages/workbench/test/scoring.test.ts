@@ -161,17 +161,23 @@ describe("summarizeScores", () => {
 });
 
 describe("ScoreStore", () => {
-  it("writes atomically, tolerates a corrupt file, caps the history, and refuses unsafe ids", async () => {
+  const attempt = { cardId: "c", cardType: "cloze", verdict: "correct", tier: 1, selfRated: false, answer: "" } as const;
+
+  it("writes atomically, tolerates a corrupt file, and refuses unsafe ids", async () => {
     const dir = await tmp();
-    let n = 0;
-    const store = new ScoreStore(dir, () => new Date(0), () => `i${++n}`);
-    await store.record("wiki-a", { cardId: "c", cardType: "cloze", verdict: "correct", tier: 1, selfRated: false, answer: "x" });
+    const store = new ScoreStore(dir, () => new Date(0), () => "i1");
+    await store.record("wiki-a", { ...attempt, answer: "x" });
     expect(JSON.parse(await readFile(join(dir, "wiki-a.json"), "utf8")).version).toBe(1);
     expect(await store.deckIds()).toEqual(["wiki-a"]);
     await (await import("node:fs/promises")).writeFile(join(dir, "wiki-a.json"), "{broken");
     expect(await store.load("wiki-a")).toEqual([]);
     await expect(store.load("../evil")).rejects.toThrow(/invalid deck id/);
-    for (let i = 0; i < 5003; i++) await store.record("wiki-b", { cardId: "c", cardType: "cloze", verdict: "correct", tier: 1, selfRated: false, answer: "" });
-    expect((await store.load("wiki-b")).length).toBe(5000);
-  }, 60_000);
+  });
+
+  it("keeps only the newest attempts when the history cap is reached", async () => {
+    let n = 0;
+    const store = new ScoreStore(await tmp(), () => new Date(0), () => `i${++n}`, 3);
+    for (let i = 0; i < 5; i++) await store.record("wiki-b", attempt);
+    expect((await store.load("wiki-b")).map((a) => a.id)).toEqual(["i3", "i4", "i5"]);
+  });
 });
